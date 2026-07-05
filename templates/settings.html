@@ -29,6 +29,14 @@
     <label class="checkline"><input type="checkbox" name="notify_due_day" {% if settings.notify_due_day %}checked{% endif %}> Уведомлять в день платежа</label>
     <label class="checkline"><input type="checkbox" name="notify_month_end" {% if settings.notify_month_end %}checked{% endif %}> Уведомлять в конце месяца</label>
     <label class="checkline"><input type="checkbox" name="browser_notifications" {% if settings.browser_notifications %}checked{% endif %}> Браузерные уведомления</label>
+    <label class="checkline"><input type="checkbox" name="notifications_enabled" {% if settings.notifications_enabled %}checked{% endif %}> Фоновые напоминания включены</label>
+
+    <div class="form-grid" style="margin-top:12px;">
+      <div>
+        <label>Интервал проверки (минуты)</label>
+        <input name="check_interval_minutes" type="number" min="1" value="{{ settings.check_interval_minutes }}">
+      </div>
+    </div>
 
     <div style="display:flex; gap:8px; flex-wrap:wrap;">
       <button type="submit" class="action-btn">Сохранить</button>

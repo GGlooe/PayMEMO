@@ -28,7 +28,7 @@
         <div class="payment-left">
           <div class="payment-title">{{ payment.bank_name }}</div>
           <div class="payment-meta">
-            <span>{{ format_date(payment.pay_date) }}</span>
+            <span>{{ payment.formatted_date }}</span>
             <span class="dot">•</span>
             <span>{{ payment.currency }}</span>
             {% if payment.comment %}
@@ -39,8 +39,8 @@
         </div>
 
         <div class="payment-right">
-          <div class="payment-amount">{{ money_text(payment.amount, payment.currency) }}</div>
-          <div class="payment-status {{ render_status(payment)[1] }}">{{ render_status(payment)[0] }}</div>
+          <div class="payment-amount">{{ payment.formatted_amount }}</div>
+          <div class="payment-status {{ payment.status_class }}">{{ payment.status_text }}</div>
 
           <div class="row-actions">
             <form action="/pay/{{ payment.id }}" method="post" class="inline-form" data-confirm="Отметить как оплачено?">

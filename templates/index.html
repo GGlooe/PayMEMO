@@ -45,14 +45,14 @@
             <div class="payment-left">
               <div class="payment-title">{{ payment.bank_name }}</div>
               <div class="payment-meta">
-                <span>{{ format_date(payment.pay_date) }}</span>
+                <span>{{ payment.formatted_date }}</span>
                 <span class="dot">•</span>
                 <span>{{ payment.currency }}</span>
               </div>
             </div>
             <div class="payment-right">
-              <div class="payment-amount">{{ money_text(payment.amount, payment.currency) }}</div>
-              <div class="payment-status {{ render_status(payment)[1] }}">{{ render_status(payment)[0] }}</div>
+              <div class="payment-amount">{{ payment.formatted_amount }}</div>
+              <div class="payment-status {{ payment.status_class }}">{{ payment.status_text }}</div>
             </div>
           </div>
         {% endfor %}
@@ -74,8 +74,8 @@
           <div class="report-row">
             <div class="report-month">{{ row.month }}</div>
             <div class="report-values">
-              <span>Начислено: {{ money_text(row.total_amount, "₽") }}</span>
-              <span>Оплачено: {{ money_text(row.total_paid, "₽") }}</span>
+              <span>Начислено: {{ row.total_amount }} ₽</span>
+              <span>Оплачено: {{ row.total_paid }} ₽</span>
             </div>
           </div>
         {% endfor %}
