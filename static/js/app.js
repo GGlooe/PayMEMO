@@ -58,8 +58,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   const csrfMeta = document.querySelector('meta[name="csrf-token"]');
   const csrfToken = csrfMeta ? csrfMeta.content : "";
   
+  // Добавляем CSRF-токен во ВСЕ формы с method="post"
   document.querySelectorAll("form").forEach((form) => {
     if (form.method.toLowerCase() === "post") {
+      // Не добавляем дубль, если уже есть
       if (!form.querySelector('input[name="csrf_token"]') && csrfToken) {
         const input = document.createElement("input");
         input.type = "hidden";
@@ -70,6 +72,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 
+  // Подтверждения действий
   document.querySelectorAll("form[data-confirm]").forEach((form) => {
     form.addEventListener("submit", (event) => {
       const message = form.getAttribute("data-confirm") || "Подтвердить действие?";
@@ -79,7 +82,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   swReady = await registerSW();
 
-  // Polling каждые 30 секунд
+  // Polling уведомлений каждые 30 секунд
   setInterval(() => {
     if (document.hidden) return;
     const csrf = document.querySelector('meta[name="csrf-token"]')?.content || "";
@@ -90,10 +93,12 @@ document.addEventListener("DOMContentLoaded", async () => {
       .then(data => {
         if (!data.items || data.items.length === 0) return;
         if (!data.trigger) return;
-        // Если это то же время что уже показывали — пропускаем
         if (lastTrigger === data.trigger) return;
         lastTrigger = data.trigger;
         data.items.forEach(item => {
+          const key = "notified_" + item.payment_id + "_" + new Date().toDateString();
+          if (localStorage.getItem(key)) return;
+          localStorage.setItem(key, "1");
           showNotificationNow("Payment Reminder", item.text);
         });
       })
