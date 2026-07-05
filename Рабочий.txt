@@ -1,13 +1,1 @@
-python -m uvicorn app.main:app --reload
 
-uvicorn app.main:app --reload
-
-Как запустить в VS Code
-Открой папку проекта в VS Code.
-Открой терминал: Terminal -> New Terminal.
-Активируй виртуальное окружение:
-PowerShell: .\.venv\Scripts\Activate.ps1
-CMD: .\.venv\Scripts\activate
-Запусти сервер:
-если main.py лежит в корне: uvicorn main:app --reload
-если файл в app/main.py: uvicorn app.main:app --reload
