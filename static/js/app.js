@@ -1,4 +1,5 @@
 let swReady = null;
+let lastTrigger = null;
 
 async function ensurePermission() {
   if (!("Notification" in window)) return false;
@@ -11,8 +12,11 @@ async function ensurePermission() {
 async function registerSW() {
   if (!("serviceWorker" in navigator)) return null;
   try {
-    return await navigator.serviceWorker.register("/static/sw.js");
+    const reg = await navigator.serviceWorker.register("/sw.js");
+    await navigator.serviceWorker.ready;
+    return reg;
   } catch (e) {
+    console.error("SW registration failed:", e);
     return null;
   }
 }
@@ -20,8 +24,9 @@ async function registerSW() {
 function showNotificationNow(title, body) {
   if (!("Notification" in window)) return;
   if (Notification.permission !== "granted") return;
-  if (swReady && swReady.active) {
-    swReady.active.postMessage({ title, body });
+
+  if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+    navigator.serviceWorker.controller.postMessage({ title, body });
     return;
   }
   new Notification(title, { body });
@@ -36,7 +41,12 @@ async function testNotifications() {
 
   swReady = await registerSW();
 
-  fetch("/notifications/test", { method: "POST" })
+  const csrf = document.querySelector('meta[name="csrf-token"]')?.content || "";
+
+  fetch("/notifications/test", { 
+    method: "POST",
+    headers: { "X-CSRF-Token": csrf }
+  })
     .then(r => r.json())
     .then(data => {
       const item = data.items && data.items[0];
@@ -45,6 +55,21 @@ async function testNotifications() {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
+  const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+  const csrfToken = csrfMeta ? csrfMeta.content : "";
+  
+  document.querySelectorAll("form").forEach((form) => {
+    if (form.method.toLowerCase() === "post") {
+      if (!form.querySelector('input[name="csrf_token"]') && csrfToken) {
+        const input = document.createElement("input");
+        input.type = "hidden";
+        input.name = "csrf_token";
+        input.value = csrfToken;
+        form.appendChild(input);
+      }
+    }
+  });
+
   document.querySelectorAll("form[data-confirm]").forEach((form) => {
     form.addEventListener("submit", (event) => {
       const message = form.getAttribute("data-confirm") || "Подтвердить действие?";
@@ -53,4 +78,25 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   swReady = await registerSW();
+
+  // Polling каждые 30 секунд
+  setInterval(() => {
+    if (document.hidden) return;
+    const csrf = document.querySelector('meta[name="csrf-token"]')?.content || "";
+    fetch("/api/notifications/poll", {
+      headers: { "X-CSRF-Token": csrf }
+    })
+      .then(r => r.json())
+      .then(data => {
+        if (!data.items || data.items.length === 0) return;
+        if (!data.trigger) return;
+        // Если это то же время что уже показывали — пропускаем
+        if (lastTrigger === data.trigger) return;
+        lastTrigger = data.trigger;
+        data.items.forEach(item => {
+          showNotificationNow("Payment Reminder", item.text);
+        });
+      })
+      .catch(() => {});
+  }, 30000);
 });

@@ -9,7 +9,7 @@
   </div>
 
   <div class="section-actions" style="margin-bottom:12px;">
-    <a class="action-btn secondary" href="/import">Импорт из Excel/CSV</a>
+    <a class="action-btn secondary" href="/import">Импорт из CSV</a>
   </div>
 
   <form method="post" class="settings-form">
@@ -23,7 +23,11 @@
     <input name="paid_amount" type="number" step="0.01" value="0">
 
     <label>Валюта</label>
-    <input name="currency" value="₽" placeholder="₽">
+    <select name="currency" style="width:100%; padding:9px 11px; border:1px solid var(--border); background:var(--surface); color:var(--text); border-radius:11px;">
+      <option value="RUB" selected>₽ (RUB)</option>
+      <option value="USD">$ (USD)</option>
+      <option value="EUR">€ (EUR)</option>
+    </select>
 
     <label>Дата платежа</label>
     <input name="pay_date" type="date" required>

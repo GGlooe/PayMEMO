@@ -9,6 +9,44 @@
     "comment": "Яндекс 1 часть"
   },
   {
+    "id": 23,
+    "bank_name": "сеня1",
+    "amount": 125.0,
+    "paid_amount": 125.0,
+    "currency": "RUB",
+    "pay_date": "2026-07-05",
+    "comment": "",
+    "name": "сеня1",
+    "description": "",
+    "archived": false
+  },
+  {
+    "id": 24,
+    "bank_name": "сеня21",
+    "amount": 127.0,
+    "paid_amount": 0.0,
+    "currency": "RUB",
+    "pay_date": "2026-07-05",
+    "comment": "",
+    "name": "сеня21",
+    "description": "",
+    "archived": false
+  },
+  {
+    "id": 25,
+    "name": "СНЯ1",
+    "bank_name": "СНЯ1",
+    "pay_date": "2026-07-05",
+    "amount": 122.0,
+    "paid_amount": 0.0,
+    "currency": "RUB",
+    "description": "",
+    "comment": "",
+    "category": "",
+    "recurring": "",
+    "archived": false
+  },
+  {
     "id": 14,
     "bank_name": "Халва",
     "amount": 21311.0,
@@ -88,23 +126,5 @@
     "currency": "₽",
     "pay_date": "2026-07-30",
     "comment": "nan"
-  },
-  {
-    "id": 23,
-    "bank_name": "сеня1",
-    "amount": 123.0,
-    "paid_amount": 0.0,
-    "currency": "₽",
-    "pay_date": "2026-07-05",
-    "comment": ""
-  },
-  {
-    "id": 24,
-    "bank_name": "сеня2",
-    "amount": 124.0,
-    "paid_amount": 0.0,
-    "currency": "₽",
-    "pay_date": "2026-07-05",
-    "comment": ""
   }
 ]

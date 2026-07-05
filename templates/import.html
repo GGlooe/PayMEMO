@@ -8,14 +8,18 @@
     <span class="section-note">CSV или Excel</span>
   </div>
 
+  {% if error %}
+    <p class="empty-state" style="color:#c0392b; margin-bottom:12px;">{{ error }}</p>
+  {% endif %}
+
   <div class="card" style="margin-bottom:12px; background: var(--panel-soft);">
     <strong>Как заполнить файл:</strong>
     <ul>
       <li>1 столбец — банк.</li>
       <li>2 столбец — сумма.</li>
-      <li>3 столбец — дата платежа.</li>
+      <li>3 столбец — дата платежа (ГГГГ-ММ-ДД).</li>
       <li>4 столбец — комментарий.</li>
-      <li>Можно сделать первую строку с заголовками, но данные должны идти ниже.</li>
+      <li>Можно сделать первую строку с заголовками: name, amount, pay_date, comment.</li>
     </ul>
   </div>
 

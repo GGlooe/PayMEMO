@@ -6,7 +6,7 @@
   <div class="section-head">
     <h1>Архив</h1>
     <div class="section-actions">
-      <a class="action-btn secondary" href="/export/archive">Экспорт</a>
+      <a class="action-btn secondary" href="/export/archive">Экспорт Excel</a>
     </div>
   </div>
 
@@ -28,7 +28,7 @@
         </div>
         <div class="payment-right">
           <div class="payment-amount">{{ payment.formatted_amount }}</div>
-          <div class="payment-status status-paid">оплачен</div>
+          <div class="payment-status {{ payment.status_class }}">{{ payment.status_text }}</div>
         </div>
       </div>
       {% endfor %}

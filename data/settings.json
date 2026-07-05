@@ -1,10 +1,10 @@
 {
-  "remind_days_before": 3,
-  "remind_time_1": "21:22",
-  "remind_time_2": "21:23",
+  "remind_days_before": 1,
+  "remind_time_1": "23:07",
+  "remind_time_2": "23:10",
   "notify_due_day": true,
   "notify_month_end": true,
-  "browser_notifications": false,
+  "browser_notifications": true,
   "check_interval_minutes": 1,
   "notifications_enabled": true
 }

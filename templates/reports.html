@@ -5,7 +5,10 @@
 <section class="card">
   <div class="section-head">
     <h1>Отчеты</h1>
-    <span class="section-note">Месячная аналитика</span>
+    <div class="section-actions">
+      <span class="section-note">Месячная аналитика</span>
+      <a class="action-btn secondary" href="/export/reports">Экспорт Excel</a>
+    </div>
   </div>
 
   {% if report %}
@@ -26,8 +29,8 @@
           {% for row in report %}
           <tr>
             <td><strong>{{ row.month }}</strong></td>
-            <td>{{ money_text(row.total_amount, "₽") }}</td>
-            <td>{{ money_text(row.total_paid, "₽") }}</td>
+            <td>{{ money_text(row.total_amount, "RUB") }}</td>
+            <td>{{ money_text(row.total_paid, "RUB") }}</td>
             <td>{{ row.count }}</td>
             <td>{{ row.paid_count }}</td>
             <td>{{ row.partial_count }}</td>

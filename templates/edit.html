@@ -19,7 +19,11 @@
     <input name="paid_amount" type="number" step="0.01" value="{{ payment.paid_amount }}" required>
 
     <label>Валюта</label>
-    <input name="currency" value="{{ payment.currency }}" required>
+    <select name="currency" style="width:100%; padding:9px 11px; border:1px solid var(--border); background:var(--surface); color:var(--text); border-radius:11px;">
+      <option value="RUB" {% if payment.currency == 'RUB' %}selected{% endif %}>₽ (RUB)</option>
+      <option value="USD" {% if payment.currency == 'USD' %}selected{% endif %}>$ (USD)</option>
+      <option value="EUR" {% if payment.currency == 'EUR' %}selected{% endif %}>€ (EUR)</option>
+    </select>
 
     <label>Дата</label>
     <input name="pay_date" type="date" value="{{ payment.pay_date }}" required>

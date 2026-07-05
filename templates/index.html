@@ -74,8 +74,8 @@
           <div class="report-row">
             <div class="report-month">{{ row.month }}</div>
             <div class="report-values">
-              <span>Начислено: {{ row.total_amount }} ₽</span>
-              <span>Оплачено: {{ row.total_paid }} ₽</span>
+              <span>Начислено: {{ money_text(row.total_amount, "RUB") }}</span>
+              <span>Оплачено: {{ money_text(row.total_paid, "RUB") }}</span>
             </div>
           </div>
         {% endfor %}
