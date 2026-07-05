@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="ru" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Payment Reminder{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', path='css/theme.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', path='css/main.css') }}">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand-block">
+      <div class="brand">Payment Reminder</div>
+      <div class="brand-sub">Напоминания, платежи, отчеты и архив</div>
+    </div>
+
+    <nav class="nav">
+      <a href="/" class="nav-link">Главная</a>
+      <a href="/payments" class="nav-link">Платежи</a>
+      <a href="/add" class="nav-link">Добавить</a>
+      <a href="/import" class="nav-link">Импорт</a>
+      <a href="/archive" class="nav-link">Архив</a>
+      <a href="/reports" class="nav-link">Отчеты</a>
+      <a href="/history" class="nav-link">История</a>
+      <a href="/settings" class="nav-link">Настройки</a>
+    </nav>
+
+    <button class="theme-btn" onclick="toggleTheme()">Тема</button>
+  </header>
+
+  <div id="notifyBox" style="display:none; margin: 12px auto 0; width:min(1280px, calc(100% - 18px));"></div>
+
+  <main class="container">
+    {% block content %}{% endblock %}
+  </main>
+
+  <script src="{{ url_for('static', path='js/theme.js') }}"></script>
+  <script src="{{ url_for('static', path='js/app.js') }}"></script>
+</body>
+</html>

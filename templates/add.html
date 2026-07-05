@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Добавить платеж — Payment Reminder{% endblock %}
+
+{% block content %}
+<section class="card">
+  <div class="section-head">
+    <h1>Добавить платеж</h1>
+    <span class="section-note">Новая запись</span>
+  </div>
+
+  <div class="section-actions" style="margin-bottom:12px;">
+    <a class="action-btn secondary" href="/import">Импорт из Excel/CSV</a>
+  </div>
+
+  <form method="post" class="settings-form">
+    <label>Банк</label>
+    <input name="bank_name" required placeholder="Например: Тинькофф">
+
+    <label>Сумма</label>
+    <input name="amount" type="number" step="0.01" required placeholder="0.00">
+
+    <label>Оплачено</label>
+    <input name="paid_amount" type="number" step="0.01" value="0">
+
+    <label>Валюта</label>
+    <input name="currency" value="₽" placeholder="₽">
+
+    <label>Дата платежа</label>
+    <input name="pay_date" type="date" required>
+
+    <label>Комментарий</label>
+    <textarea name="comment" placeholder="Дополнительная информация"></textarea>
+
+    <button type="submit" class="action-btn">Сохранить</button>
+  </form>
+</section>
+{% endblock %}

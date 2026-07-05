@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Отчеты — Payment Reminder{% endblock %}
+
+{% block content %}
+<section class="card">
+  <div class="section-head">
+    <h1>Отчеты</h1>
+    <span class="section-note">Месячная аналитика</span>
+  </div>
+
+  {% if report %}
+    <div class="table-shell center-table">
+      <table class="modern-table">
+        <thead>
+          <tr>
+            <th>Месяц</th>
+            <th>Начислено</th>
+            <th>Оплачено</th>
+            <th>Всего</th>
+            <th>Оплачено</th>
+            <th>Частично</th>
+            <th>Не оплачено</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in report %}
+          <tr>
+            <td><strong>{{ row.month }}</strong></td>
+            <td>{{ money_text(row.total_amount, "₽") }}</td>
+            <td>{{ money_text(row.total_paid, "₽") }}</td>
+            <td>{{ row.count }}</td>
+            <td>{{ row.paid_count }}</td>
+            <td>{{ row.partial_count }}</td>
+            <td>{{ row.unpaid_count }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p class="empty-state">Отчетов пока нет.</p>
+  {% endif %}
+</section>
+{% endblock %}

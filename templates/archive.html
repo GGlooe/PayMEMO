@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Архив — Payment Reminder{% endblock %}
+
+{% block content %}
+<section class="card">
+  <div class="section-head">
+    <h1>Архив</h1>
+    <div class="section-actions">
+      <a class="action-btn secondary" href="/export/archive">Экспорт</a>
+    </div>
+  </div>
+
+  {% if payments %}
+    <div class="payment-list compact">
+      {% for payment in payments %}
+      <div class="payment-row payment-row-compact">
+        <div class="payment-left">
+          <div class="payment-title">{{ payment.bank_name }}</div>
+          <div class="payment-meta">
+            <span>{{ format_date(payment.pay_date) }}</span>
+            <span class="dot">•</span>
+            <span>{{ payment.currency }}</span>
+            {% if payment.comment %}
+            <span class="dot">•</span>
+            <span>{{ payment.comment }}</span>
+            {% endif %}
+          </div>
+        </div>
+        <div class="payment-right">
+          <div class="payment-amount">{{ money_text(payment.amount, payment.currency) }}</div>
+          <div class="payment-status {{ render_status(payment)[1] }}">{{ render_status(payment)[0] }}</div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="empty-state">Архив пуст.</p>
+  {% endif %}
+</section>
+{% endblock %}

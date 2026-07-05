@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %}Главная — Payment Reminder{% endblock %}
+
+{% block content %}
+<section class="hero card">
+  <div>
+    <div class="hero-kicker">Добро пожаловать, {{ user }}</div>
+    <h1 class="hero-title">Система учета платежей и напоминаний</h1>
+    <p class="hero-text">Здесь собраны ближайшие платежи, архив, отчеты, история и быстрый доступ к настройкам.</p>
+  </div>
+
+  <div class="hero-actions">
+    <a class="action-btn" href="/payments">Открыть платежи</a>
+    <a class="action-btn secondary" href="/reports">Посмотреть отчеты</a>
+    <a class="action-btn secondary" href="/history">История</a>
+  </div>
+</section>
+
+<section class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-value">{{ payments|length }}</div>
+    <div class="stat-label">Активных платежей</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value">{{ archive|length }}</div>
+    <div class="stat-label">В архиве</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value">{{ settings.remind_days_before }}</div>
+    <div class="stat-label">Дней до напоминания</div>
+  </div>
+</section>
+
+<section class="content-grid">
+  <div class="card">
+    <div class="section-head">
+      <h2>Ближайшие платежи</h2>
+      <span class="section-note">Скоро — в ближайшие дни</span>
+    </div>
+
+    {% if payments %}
+      <div class="payment-list compact">
+        {% for payment in payments[:5] %}
+          <div class="payment-row payment-row-compact">
+            <div class="payment-left">
+              <div class="payment-title">{{ payment.bank_name }}</div>
+              <div class="payment-meta">
+                <span>{{ format_date(payment.pay_date) }}</span>
+                <span class="dot">•</span>
+                <span>{{ payment.currency }}</span>
+              </div>
+            </div>
+            <div class="payment-right">
+              <div class="payment-amount">{{ money_text(payment.amount, payment.currency) }}</div>
+              <div class="payment-status {{ render_status(payment)[1] }}">{{ render_status(payment)[0] }}</div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="empty-state">Пока нет активных платежей.</p>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <div class="section-head">
+      <h2>Краткая сводка</h2>
+      <span class="section-note">По месяцам</span>
+    </div>
+
+    {% if monthly_report %}
+      <div class="report-list">
+        {% for row in monthly_report[-3:] %}
+          <div class="report-row">
+            <div class="report-month">{{ row.month }}</div>
+            <div class="report-values">
+              <span>Начислено: {{ money_text(row.total_amount, "₽") }}</span>
+              <span>Оплачено: {{ money_text(row.total_paid, "₽") }}</span>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="empty-state">Отчетов пока нет.</p>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

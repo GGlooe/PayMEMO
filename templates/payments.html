@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Платежи — Payment Reminder{% endblock %}
+
+{% block content %}
+<section class="card">
+  <div class="section-head">
+    <h1>Платежи</h1>
+    <div class="section-actions">
+      <a class="action-btn secondary" href="/payments?filter=all">Все</a>
+      <a class="action-btn secondary" href="/payments?filter=soon">Скоро</a>
+      <a class="action-btn secondary" href="/payments?filter=urgent">Срочно</a>
+      <a class="action-btn secondary" href="/payments?filter=paid">Оплачено</a>
+      <a class="action-btn secondary" href="/export/payments">Экспорт</a>
+      <a class="action-btn" href="/add">+ Добавить</a>
+    </div>
+  </div>
+
+  <div class="stats-line">
+    <div class="mini-stat">Срочно: <strong>{{ urgent_count }}</strong></div>
+    <div class="mini-stat">Скоро: <strong>{{ soon_count }}</strong></div>
+    <div class="mini-stat">Оплачено: <strong>{{ paid_count }}</strong></div>
+  </div>
+
+  {% if payments %}
+    <div class="payment-list compact">
+      {% for payment in payments %}
+      <div class="payment-row payment-row-compact">
+        <div class="payment-left">
+          <div class="payment-title">{{ payment.bank_name }}</div>
+          <div class="payment-meta">
+            <span>{{ format_date(payment.pay_date) }}</span>
+            <span class="dot">•</span>
+            <span>{{ payment.currency }}</span>
+            {% if payment.comment %}
+            <span class="dot">•</span>
+            <span>{{ payment.comment }}</span>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="payment-right">
+          <div class="payment-amount">{{ money_text(payment.amount, payment.currency) }}</div>
+          <div class="payment-status {{ render_status(payment)[1] }}">{{ render_status(payment)[0] }}</div>
+
+          <div class="row-actions">
+            <form action="/pay/{{ payment.id }}" method="post" class="inline-form" data-confirm="Отметить как оплачено?">
+              <button type="submit" class="mini-btn">Оплачено</button>
+            </form>
+
+            <a href="/edit/{{ payment.id }}" class="icon-link" title="Редактировать">✏️</a>
+
+            <form action="/delete/{{ payment.id }}" method="post" class="inline-form" data-confirm="Удалить платеж?">
+              <button type="submit" class="mini-btn danger">Удалить</button>
+            </form>
+          </div>
+
+          <form action="/partial/{{ payment.id }}" method="post" class="partial-form" data-confirm="Сохранить частичную оплату?">
+            <input name="paid_amount" type="number" step="0.01" min="0" max="{{ payment.amount }}" value="{{ payment.paid_amount }}">
+            <button type="submit" class="mini-btn">Частично</button>
+          </form>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="empty-state">Платежей пока нет.</p>
+  {% endif %}
+</section>
+{% endblock %}

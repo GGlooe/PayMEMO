@@ -1,0 +1,8 @@
+{
+  "remind_days_before": 1,
+  "remind_time_1": "18:16",
+  "remind_time_2": "18:17",
+  "notify_due_day": true,
+  "notify_month_end": true,
+  "browser_notifications": true
+}

@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Настройки — Payment Reminder{% endblock %}
+
+{% block content %}
+<section class="card">
+  <div class="section-head">
+    <h1>Настройки</h1>
+    <span class="section-note">Напоминания и уведомления</span>
+  </div>
+
+  <form method="post" class="settings-form">
+    <div class="form-grid">
+      <div>
+        <label>Напоминать за дней до даты</label>
+        <input name="remind_days_before" type="number" value="{{ settings.remind_days_before }}">
+      </div>
+
+      <div>
+        <label>Время напоминания 1</label>
+        <input name="remind_time_1" type="time" value="{{ settings.remind_time_1 }}">
+      </div>
+
+      <div>
+        <label>Время напоминания 2</label>
+        <input name="remind_time_2" type="time" value="{{ settings.remind_time_2 }}">
+      </div>
+    </div>
+
+    <label class="checkline"><input type="checkbox" name="notify_due_day" {% if settings.notify_due_day %}checked{% endif %}> Уведомлять в день платежа</label>
+    <label class="checkline"><input type="checkbox" name="notify_month_end" {% if settings.notify_month_end %}checked{% endif %}> Уведомлять в конце месяца</label>
+    <label class="checkline"><input type="checkbox" name="browser_notifications" {% if settings.browser_notifications %}checked{% endif %}> Браузерные уведомления</label>
+
+    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+      <button type="submit" class="action-btn">Сохранить</button>
+      <button type="button" class="action-btn secondary" onclick="testNotifications()">Проверить уведомление</button>
+    </div>
+  </form>
+
+  <p class="empty-state" style="margin-top:12px;">
+    Нажми «Проверить уведомление», чтобы браузер спросил разрешение и показал тестовое уведомление.
+  </p>
+</section>
+{% endblock %}

@@ -1,0 +1,110 @@
+[
+  {
+    "id": 13,
+    "bank_name": "Яндекс Ф.",
+    "amount": 2464.0,
+    "paid_amount": 2464.0,
+    "currency": "₽",
+    "pay_date": "2026-07-05",
+    "comment": "Яндекс 1 часть"
+  },
+  {
+    "id": 14,
+    "bank_name": "Халва",
+    "amount": 21311.0,
+    "paid_amount": 0.0,
+    "currency": "₽",
+    "pay_date": "2026-07-06",
+    "comment": "nan"
+  },
+  {
+    "id": 15,
+    "bank_name": "Тинькоф",
+    "amount": 37172.5,
+    "paid_amount": 0.0,
+    "currency": "₽",
+    "pay_date": "2026-07-08",
+    "comment": "nan"
+  },
+  {
+    "id": 16,
+    "bank_name": "ОЗОН",
+    "amount": 24858.5,
+    "paid_amount": 0.0,
+    "currency": "₽",
+    "pay_date": "2026-07-12",
+    "comment": "nan"
+  },
+  {
+    "id": 17,
+    "bank_name": "Сбербанк",
+    "amount": 15822.666666666666,
+    "paid_amount": 0.0,
+    "currency": "₽",
+    "pay_date": "2026-07-14",
+    "comment": "nan"
+  },
+  {
+    "id": 18,
+    "bank_name": "ЖКХ",
+    "amount": 6000.0,
+    "paid_amount": 0.0,
+    "currency": "₽",
+    "pay_date": "2026-07-14",
+    "comment": "nan"
+  },
+  {
+    "id": 19,
+    "bank_name": "Райфайзен",
+    "amount": 16668.0,
+    "paid_amount": 0.0,
+    "currency": "₽",
+    "pay_date": "2026-07-20",
+    "comment": "nan"
+  },
+  {
+    "id": 20,
+    "bank_name": "Газпромбанк",
+    "amount": 24269.2,
+    "paid_amount": 0.0,
+    "currency": "₽",
+    "pay_date": "2026-07-20",
+    "comment": "nan"
+  },
+  {
+    "id": 21,
+    "bank_name": "Яндекс Ф.",
+    "amount": 4180.0,
+    "paid_amount": 0.0,
+    "currency": "₽",
+    "pay_date": "2026-07-21",
+    "comment": "Яндекс 2 часть"
+  },
+  {
+    "id": 22,
+    "bank_name": "Сбербанк",
+    "amount": 27132.0,
+    "paid_amount": 0.0,
+    "currency": "₽",
+    "pay_date": "2026-07-30",
+    "comment": "nan"
+  },
+  {
+    "id": 23,
+    "bank_name": "сеня1",
+    "amount": 123.0,
+    "paid_amount": 0.0,
+    "currency": "₽",
+    "pay_date": "2026-07-05",
+    "comment": ""
+  },
+  {
+    "id": 24,
+    "bank_name": "сеня2",
+    "amount": 124.0,
+    "paid_amount": 0.0,
+    "currency": "₽",
+    "pay_date": "2026-07-05",
+    "comment": ""
+  }
+]

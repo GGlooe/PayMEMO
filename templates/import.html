@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Импорт — Payment Reminder{% endblock %}
+
+{% block content %}
+<section class="card">
+  <div class="section-head">
+    <h1>Импорт платежей</h1>
+    <span class="section-note">CSV или Excel</span>
+  </div>
+
+  <div class="card" style="margin-bottom:12px; background: var(--panel-soft);">
+    <strong>Как заполнить файл:</strong>
+    <ul>
+      <li>1 столбец — банк.</li>
+      <li>2 столбец — сумма.</li>
+      <li>3 столбец — дата платежа.</li>
+      <li>4 столбец — комментарий.</li>
+      <li>Можно сделать первую строку с заголовками, но данные должны идти ниже.</li>
+    </ul>
+  </div>
+
+  <form method="post" enctype="multipart/form-data" class="settings-form">
+    <label>Файл .csv или .xlsx</label>
+    <input type="file" name="file" accept=".csv,.xlsx,.xls" required>
+    <button type="submit" class="action-btn">Импортировать</button>
+  </form>
+</section>
+{% endblock %}

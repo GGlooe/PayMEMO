@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}История — Payment Reminder{% endblock %}
+
+{% block content %}
+<section class="card">
+  <div class="section-head">
+    <h1>История</h1>
+    <div class="section-actions">
+      <a class="action-btn secondary" href="/history/export">Экспорт</a>
+    </div>
+  </div>
+
+  {% if history %}
+    <div class="table-shell">
+      <table class="modern-table history-table">
+        <thead>
+          <tr>
+            <th>Время</th>
+            <th>Действие</th>
+            <th>Платеж</th>
+            <th>Детали</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in history %}
+          <tr>
+            <td>{{ row.ts.replace('T', ' ') }}</td>
+            <td>{{ row.action }}</td>
+            <td>{{ row.bank_name }}</td>
+            <td>{{ row.details }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p class="empty-state">История пока пустая.</p>
+  {% endif %}
+</section>
+{% endblock %}

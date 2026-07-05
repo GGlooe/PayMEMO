@@ -1,0 +1,891 @@
+[
+  {
+    "ts": "2026-07-05T18:18:32",
+    "action": "notification",
+    "payment_id": 24,
+    "bank_name": "сеня2",
+    "details": "Уведомление: 05.07.2026"
+  },
+  {
+    "ts": "2026-07-05T18:18:32",
+    "action": "notification",
+    "payment_id": 23,
+    "bank_name": "сеня1",
+    "details": "Уведомление: 05.07.2026"
+  },
+  {
+    "ts": "2026-07-05T18:18:32",
+    "action": "notification",
+    "payment_id": 14,
+    "bank_name": "Халва",
+    "details": "Уведомление: 06.07.2026"
+  },
+  {
+    "ts": "2026-07-05T18:15:38",
+    "action": "notification",
+    "payment_id": 24,
+    "bank_name": "сеня2",
+    "details": "Уведомление: 05.07.2026"
+  },
+  {
+    "ts": "2026-07-05T18:15:38",
+    "action": "notification",
+    "payment_id": 23,
+    "bank_name": "сеня1",
+    "details": "Уведомление: 05.07.2026"
+  },
+  {
+    "ts": "2026-07-05T18:15:38",
+    "action": "notification",
+    "payment_id": 14,
+    "bank_name": "Халва",
+    "details": "Уведомление: 06.07.2026"
+  },
+  {
+    "ts": "2026-07-05T17:50:12",
+    "action": "notification",
+    "payment_id": 24,
+    "bank_name": "сеня2",
+    "details": "Уведомление: 05.07.2026"
+  },
+  {
+    "ts": "2026-07-05T17:50:12",
+    "action": "notification",
+    "payment_id": 23,
+    "bank_name": "сеня1",
+    "details": "Уведомление: 05.07.2026"
+  },
+  {
+    "ts": "2026-07-05T17:50:12",
+    "action": "notification",
+    "payment_id": 14,
+    "bank_name": "Халва",
+    "details": "Уведомление: 06.07.2026"
+  },
+  {
+    "ts": "2026-07-05T17:49:12",
+    "action": "notification",
+    "payment_id": 24,
+    "bank_name": "сеня2",
+    "details": "Уведомление: 05.07.2026"
+  },
+  {
+    "ts": "2026-07-05T17:49:12",
+    "action": "notification",
+    "payment_id": 23,
+    "bank_name": "сеня1",
+    "details": "Уведомление: 05.07.2026"
+  },
+  {
+    "ts": "2026-07-05T17:49:12",
+    "action": "notification",
+    "payment_id": 14,
+    "bank_name": "Халва",
+    "details": "Уведомление: 06.07.2026"
+  },
+  {
+    "ts": "2026-07-05T16:40:21",
+    "action": "notification",
+    "payment_id": 14,
+    "bank_name": "Халва",
+    "details": "Уведомление: 06.07.2026"
+  },
+  {
+    "ts": "2026-07-05T16:40:21",
+    "action": "notification",
+    "payment_id": 24,
+    "bank_name": "сеня2",
+    "details": "Уведомление: 05.07.2026"
+  },
+  {
+    "ts": "2026-07-05T16:40:21",
+    "action": "notification",
+    "payment_id": 23,
+    "bank_name": "сеня1",
+    "details": "Уведомление: 05.07.2026"
+  },
+  {
+    "ts": "2026-07-05T16:30:21",
+    "action": "notification",
+    "payment_id": 14,
+    "bank_name": "Халва",
+    "details": "Уведомление: 06.07.2026"
+  },
+  {
+    "ts": "2026-07-05T16:30:21",
+    "action": "notification",
+    "payment_id": 24,
+    "bank_name": "сеня2",
+    "details": "Уведомление: 05.07.2026"
+  },
+  {
+    "ts": "2026-07-05T16:30:21",
+    "action": "notification",
+    "payment_id": 23,
+    "bank_name": "сеня1",
+    "details": "Уведомление: 05.07.2026"
+  },
+  {
+    "ts": "2026-07-05T16:21:17",
+    "action": "settings_updated",
+    "payment_id": null,
+    "bank_name": "",
+    "details": "Обновлены настройки"
+  },
+  {
+    "ts": "2026-07-05T16:21:14",
+    "action": "settings_updated",
+    "payment_id": null,
+    "bank_name": "",
+    "details": "Обновлены настройки"
+  },
+  {
+    "ts": "2026-07-05T16:21:12",
+    "action": "settings_updated",
+    "payment_id": null,
+    "bank_name": "",
+    "details": "Обновлены настройки"
+  },
+  {
+    "ts": "2026-07-05T16:21:10",
+    "action": "settings_updated",
+    "payment_id": null,
+    "bank_name": "",
+    "details": "Обновлены настройки"
+  },
+  {
+    "ts": "2026-07-05T16:21:07",
+    "action": "settings_updated",
+    "payment_id": null,
+    "bank_name": "",
+    "details": "Обновлены настройки"
+  },
+  {
+    "ts": "2026-07-05T16:20:57",
+    "action": "settings_updated",
+    "payment_id": null,
+    "bank_name": "",
+    "details": "Обновлены настройки"
+  },
+  {
+    "ts": "2026-07-05T16:20:54",
+    "action": "settings_updated",
+    "payment_id": null,
+    "bank_name": "",
+    "details": "Обновлены настройки"
+  },
+  {
+    "ts": "2026-07-05T16:20:53",
+    "action": "settings_updated",
+    "payment_id": null,
+    "bank_name": "",
+    "details": "Обновлены настройки"
+  },
+  {
+    "ts": "2026-07-05T16:20:30",
+    "action": "settings_updated",
+    "payment_id": null,
+    "bank_name": "",
+    "details": "Обновлены настройки"
+  },
+  {
+    "ts": "2026-07-05T16:20:21",
+    "action": "notification",
+    "payment_id": 14,
+    "bank_name": "Халва",
+    "details": "Уведомление: 06.07.2026"
+  },
+  {
+    "ts": "2026-07-05T16:20:21",
+    "action": "notification",
+    "payment_id": 24,
+    "bank_name": "сеня2",
+    "details": "Уведомление: 05.07.2026"
+  },
+  {
+    "ts": "2026-07-05T16:20:21",
+    "action": "notification",
+    "payment_id": 23,
+    "bank_name": "сеня1",
+    "details": "Уведомление: 05.07.2026"
+  },
+  {
+    "ts": "2026-07-05T16:20:13",
+    "action": "settings_updated",
+    "payment_id": null,
+    "bank_name": "",
+    "details": "Обновлены настройки"
+  },
+  {
+    "ts": "2026-07-05T16:20:10",
+    "action": "settings_updated",
+    "payment_id": null,
+    "bank_name": "",
+    "details": "Обновлены настройки"
+  },
+  {
+    "ts": "2026-07-05T16:19:56",
+    "action": "settings_updated",
+    "payment_id": null,
+    "bank_name": "",
+    "details": "Обновлены настройки"
+  },
+  {
+    "ts": "2026-07-05T16:19:51",
+    "action": "settings_updated",
+    "payment_id": null,
+    "bank_name": "",
+    "details": "Обновлены настройки"
+  },
+  {
+    "ts": "2026-07-05T16:19:45",
+    "action": "settings_updated",
+    "payment_id": null,
+    "bank_name": "",
+    "details": "Обновлены настройки"
+  },
+  {
+    "ts": "2026-07-05T16:19:41",
+    "action": "settings_updated",
+    "payment_id": null,
+    "bank_name": "",
+    "details": "Обновлены настройки"
+  },
+  {
+    "ts": "2026-07-05T16:19:36",
+    "action": "settings_updated",
+    "payment_id": null,
+    "bank_name": "",
+    "details": "Обновлены настройки"
+  },
+  {
+    "ts": "2026-07-05T16:19:34",
+    "action": "settings_updated",
+    "payment_id": null,
+    "bank_name": "",
+    "details": "Обновлены настройки"
+  },
+  {
+    "ts": "2026-07-05T16:19:23",
+    "action": "settings_updated",
+    "payment_id": null,
+    "bank_name": "",
+    "details": "Обновлены настройки"
+  },
+  {
+    "ts": "2026-07-05T16:19:21",
+    "action": "notification",
+    "payment_id": 14,
+    "bank_name": "Халва",
+    "details": "Уведомление: 06.07.2026"
+  },
+  {
+    "ts": "2026-07-05T16:19:21",
+    "action": "notification",
+    "payment_id": 24,
+    "bank_name": "сеня2",
+    "details": "Уведомление: 05.07.2026"
+  },
+  {
+    "ts": "2026-07-05T16:19:21",
+    "action": "notification",
+    "payment_id": 23,
+    "bank_name": "сеня1",
+    "details": "Уведомление: 05.07.2026"
+  },
+  {
+    "ts": "2026-07-05T16:19:12",
+    "action": "settings_updated",
+    "payment_id": null,
+    "bank_name": "",
+    "details": "Обновлены настройки"
+  },
+  {
+    "ts": "2026-07-05T16:19:01",
+    "action": "settings_updated",
+    "payment_id": null,
+    "bank_name": "",
+    "details": "Обновлены настройки"
+  },
+  {
+    "ts": "2026-07-05T16:00:18",
+    "action": "notification",
+    "payment_id": 14,
+    "bank_name": "Халва",
+    "details": "Уведомление: 06.07.2026"
+  },
+  {
+    "ts": "2026-07-05T16:00:18",
+    "action": "notification",
+    "payment_id": 24,
+    "bank_name": "сеня2",
+    "details": "Уведомление: 05.07.2026"
+  },
+  {
+    "ts": "2026-07-05T16:00:18",
+    "action": "notification",
+    "payment_id": 23,
+    "bank_name": "сеня1",
+    "details": "Уведомление: 05.07.2026"
+  },
+  {
+    "ts": "2026-07-05T15:55:18",
+    "action": "notification",
+    "payment_id": 14,
+    "bank_name": "Халва",
+    "details": "Уведомление: 06.07.2026"
+  },
+  {
+    "ts": "2026-07-05T15:55:18",
+    "action": "notification",
+    "payment_id": 24,
+    "bank_name": "сеня2",
+    "details": "Уведомление: 05.07.2026"
+  },
+  {
+    "ts": "2026-07-05T15:55:18",
+    "action": "notification",
+    "payment_id": 23,
+    "bank_name": "сеня1",
+    "details": "Уведомление: 05.07.2026"
+  },
+  {
+    "ts": "2026-07-05T15:55:07",
+    "action": "settings_updated",
+    "payment_id": null,
+    "bank_name": "",
+    "details": "Обновлены настройки"
+  },
+  {
+    "ts": "2026-07-05T15:54:53",
+    "action": "settings_updated",
+    "payment_id": null,
+    "bank_name": "",
+    "details": "Обновлены настройки"
+  },
+  {
+    "ts": "2026-07-05T15:54:48",
+    "action": "notification",
+    "payment_id": 24,
+    "bank_name": "сеня2",
+    "details": "Уведомление: 05.07.2026"
+  },
+  {
+    "ts": "2026-07-05T15:54:32",
+    "action": "created",
+    "payment_id": 24,
+    "bank_name": "сеня2",
+    "details": "Создан платеж"
+  },
+  {
+    "ts": "2026-07-05T15:53:25",
+    "action": "settings_updated",
+    "payment_id": null,
+    "bank_name": "",
+    "details": "Обновлены настройки"
+  },
+  {
+    "ts": "2026-07-05T15:53:18",
+    "action": "notification",
+    "payment_id": 23,
+    "bank_name": "сеня1",
+    "details": "Уведомление: 05.07.2026"
+  },
+  {
+    "ts": "2026-07-05T15:53:15",
+    "action": "created",
+    "payment_id": 23,
+    "bank_name": "сеня1",
+    "details": "Создан платеж"
+  },
+  {
+    "ts": "2026-07-05T15:52:23",
+    "action": "settings_updated",
+    "payment_id": null,
+    "bank_name": "",
+    "details": "Обновлены настройки"
+  },
+  {
+    "ts": "2026-07-05T15:52:17",
+    "action": "settings_updated",
+    "payment_id": null,
+    "bank_name": "",
+    "details": "Обновлены настройки"
+  },
+  {
+    "ts": "2026-07-05T15:50:18",
+    "action": "notification",
+    "payment_id": 14,
+    "bank_name": "Халва",
+    "details": "Уведомление: 06.07.2026"
+  },
+  {
+    "ts": "2026-07-05T15:50:10",
+    "action": "settings_updated",
+    "payment_id": null,
+    "bank_name": "",
+    "details": "Обновлены настройки"
+  },
+  {
+    "ts": "2026-07-05T15:33:06",
+    "action": "notification",
+    "payment_id": 15,
+    "bank_name": "Тинькоф",
+    "details": "Платеж скоро"
+  },
+  {
+    "ts": "2026-07-05T15:33:06",
+    "action": "notification",
+    "payment_id": 14,
+    "bank_name": "Халва",
+    "details": "Платеж скоро"
+  },
+  {
+    "ts": "2026-07-05T15:28:06",
+    "action": "notification",
+    "payment_id": 15,
+    "bank_name": "Тинькоф",
+    "details": "Платеж скоро"
+  },
+  {
+    "ts": "2026-07-05T15:28:06",
+    "action": "notification",
+    "payment_id": 14,
+    "bank_name": "Халва",
+    "details": "Платеж скоро"
+  },
+  {
+    "ts": "2026-07-05T15:23:06",
+    "action": "notification",
+    "payment_id": 15,
+    "bank_name": "Тинькоф",
+    "details": "Платеж скоро"
+  },
+  {
+    "ts": "2026-07-05T15:23:06",
+    "action": "notification",
+    "payment_id": 14,
+    "bank_name": "Халва",
+    "details": "Платеж скоро"
+  },
+  {
+    "ts": "2026-07-05T15:18:06",
+    "action": "notification",
+    "payment_id": 15,
+    "bank_name": "Тинькоф",
+    "details": "Платеж скоро"
+  },
+  {
+    "ts": "2026-07-05T15:18:06",
+    "action": "notification",
+    "payment_id": 14,
+    "bank_name": "Халва",
+    "details": "Платеж скоро"
+  },
+  {
+    "ts": "2026-07-05T15:13:06",
+    "action": "notification",
+    "payment_id": 15,
+    "bank_name": "Тинькоф",
+    "details": "Платеж скоро"
+  },
+  {
+    "ts": "2026-07-05T15:13:06",
+    "action": "notification",
+    "payment_id": 14,
+    "bank_name": "Халва",
+    "details": "Платеж скоро"
+  },
+  {
+    "ts": "2026-07-05T15:08:06",
+    "action": "notification",
+    "payment_id": 15,
+    "bank_name": "Тинькоф",
+    "details": "Платеж скоро"
+  },
+  {
+    "ts": "2026-07-05T15:08:06",
+    "action": "notification",
+    "payment_id": 14,
+    "bank_name": "Халва",
+    "details": "Платеж скоро"
+  },
+  {
+    "ts": "2026-07-05T15:03:06",
+    "action": "notification",
+    "payment_id": 15,
+    "bank_name": "Тинькоф",
+    "details": "Платеж скоро"
+  },
+  {
+    "ts": "2026-07-05T15:03:06",
+    "action": "notification",
+    "payment_id": 14,
+    "bank_name": "Халва",
+    "details": "Платеж скоро"
+  },
+  {
+    "ts": "2026-07-05T14:56:22",
+    "action": "settings_updated",
+    "payment_id": null,
+    "bank_name": "",
+    "details": "Обновлены настройки"
+  },
+  {
+    "ts": "2026-07-05T14:56:21",
+    "action": "settings_updated",
+    "payment_id": null,
+    "bank_name": "",
+    "details": "Обновлены настройки"
+  },
+  {
+    "ts": "2026-07-05T14:56:08",
+    "action": "paid",
+    "payment_id": 13,
+    "bank_name": "Яндекс Ф.",
+    "details": "Отмечен как оплаченный"
+  },
+  {
+    "ts": "2026-07-05T14:54:18",
+    "action": "notification",
+    "payment_id": 15,
+    "bank_name": "Тинькоф",
+    "details": "Платеж скоро"
+  },
+  {
+    "ts": "2026-07-05T14:54:18",
+    "action": "notification",
+    "payment_id": 14,
+    "bank_name": "Халва",
+    "details": "Платеж скоро"
+  },
+  {
+    "ts": "2026-07-05T14:54:18",
+    "action": "notification",
+    "payment_id": 13,
+    "bank_name": "Яндекс Ф.",
+    "details": "Платеж скоро"
+  },
+  {
+    "ts": "2026-07-02T16:50:11",
+    "action": "settings_updated",
+    "payment_id": null,
+    "bank_name": "",
+    "details": "Обновлены настройки"
+  },
+  {
+    "ts": "2026-07-02T16:45:48",
+    "action": "settings_updated",
+    "payment_id": null,
+    "bank_name": "",
+    "details": "Обновлены настройки"
+  },
+  {
+    "ts": "2026-07-02T16:45:29",
+    "action": "settings_updated",
+    "payment_id": null,
+    "bank_name": "",
+    "details": "Обновлены настройки"
+  },
+  {
+    "ts": "2026-07-02T16:43:25",
+    "action": "settings_updated",
+    "payment_id": null,
+    "bank_name": "",
+    "details": "Обновлены настройки"
+  },
+  {
+    "ts": "2026-07-02T16:43:24",
+    "action": "settings_updated",
+    "payment_id": null,
+    "bank_name": "",
+    "details": "Обновлены настройки"
+  },
+  {
+    "ts": "2026-07-02T16:43:10",
+    "action": "settings_updated",
+    "payment_id": null,
+    "bank_name": "",
+    "details": "Обновлены настройки"
+  },
+  {
+    "ts": "2026-07-02T16:43:06",
+    "action": "settings_updated",
+    "payment_id": null,
+    "bank_name": "",
+    "details": "Обновлены настройки"
+  },
+  {
+    "ts": "2026-07-02T16:42:24",
+    "action": "deleted",
+    "payment_id": 11,
+    "bank_name": "СВои",
+    "details": "Удалён платеж"
+  },
+  {
+    "ts": "2026-07-02T16:42:21",
+    "action": "deleted",
+    "payment_id": 6,
+    "bank_name": "Трубанк",
+    "details": "Удалён платеж"
+  },
+  {
+    "ts": "2026-07-02T16:42:19",
+    "action": "deleted",
+    "payment_id": 4,
+    "bank_name": "Тбанк",
+    "details": "Удалён платеж"
+  },
+  {
+    "ts": "2026-07-02T16:42:17",
+    "action": "deleted",
+    "payment_id": 1,
+    "bank_name": "Наташин",
+    "details": "Удалён платеж"
+  },
+  {
+    "ts": "2026-07-02T16:42:12",
+    "action": "deleted",
+    "payment_id": 5,
+    "bank_name": "Газ",
+    "details": "Удалён платеж"
+  },
+  {
+    "ts": "2026-07-02T16:42:03",
+    "action": "deleted",
+    "payment_id": 2,
+    "bank_name": "Сбер",
+    "details": "Удалён платеж"
+  },
+  {
+    "ts": "2026-07-02T16:41:59",
+    "action": "deleted",
+    "payment_id": 10,
+    "bank_name": "Тбанк",
+    "details": "Удалён платеж"
+  },
+  {
+    "ts": "2026-07-02T16:41:49",
+    "action": "deleted",
+    "payment_id": 12,
+    "bank_name": "сеня",
+    "details": "Удалён платеж"
+  },
+  {
+    "ts": "2026-07-02T16:41:47",
+    "action": "deleted",
+    "payment_id": 3,
+    "bank_name": "Сбер1",
+    "details": "Удалён платеж"
+  },
+  {
+    "ts": "2026-07-02T16:41:06",
+    "action": "notification",
+    "payment_id": 13,
+    "bank_name": "Яндекс Ф.",
+    "details": "Платеж скоро"
+  },
+  {
+    "ts": "2026-07-02T16:41:06",
+    "action": "notification",
+    "payment_id": 12,
+    "bank_name": "сеня",
+    "details": "Платеж скоро"
+  },
+  {
+    "ts": "2026-07-02T16:33:15",
+    "action": "notification",
+    "payment_id": 13,
+    "bank_name": "Яндекс Ф.",
+    "details": "Платеж скоро"
+  },
+  {
+    "ts": "2026-07-02T16:33:15",
+    "action": "notification",
+    "payment_id": 12,
+    "bank_name": "сеня",
+    "details": "Платеж скоро"
+  },
+  {
+    "ts": "2026-07-02T16:32:59",
+    "action": "notification",
+    "payment_id": 13,
+    "bank_name": "Яндекс Ф.",
+    "details": "Платеж скоро"
+  },
+  {
+    "ts": "2026-07-02T16:32:59",
+    "action": "notification",
+    "payment_id": 12,
+    "bank_name": "сеня",
+    "details": "Платеж скоро"
+  },
+  {
+    "ts": "2026-07-02T16:06:16",
+    "action": "deleted",
+    "payment_id": 9,
+    "bank_name": "Сбер1",
+    "details": "Удалён платеж"
+  },
+  {
+    "ts": "2026-07-02T16:06:08",
+    "action": "imported",
+    "payment_id": 22,
+    "bank_name": "Сбербанк",
+    "details": "Импорт из файла"
+  },
+  {
+    "ts": "2026-07-02T16:06:08",
+    "action": "imported",
+    "payment_id": 21,
+    "bank_name": "Яндекс Ф.",
+    "details": "Импорт из файла"
+  },
+  {
+    "ts": "2026-07-02T16:06:08",
+    "action": "imported",
+    "payment_id": 20,
+    "bank_name": "Газпромбанк",
+    "details": "Импорт из файла"
+  },
+  {
+    "ts": "2026-07-02T16:06:08",
+    "action": "imported",
+    "payment_id": 19,
+    "bank_name": "Райфайзен",
+    "details": "Импорт из файла"
+  },
+  {
+    "ts": "2026-07-02T16:06:08",
+    "action": "imported",
+    "payment_id": 18,
+    "bank_name": "ЖКХ",
+    "details": "Импорт из файла"
+  },
+  {
+    "ts": "2026-07-02T16:06:08",
+    "action": "imported",
+    "payment_id": 17,
+    "bank_name": "Сбербанк",
+    "details": "Импорт из файла"
+  },
+  {
+    "ts": "2026-07-02T16:06:08",
+    "action": "imported",
+    "payment_id": 16,
+    "bank_name": "ОЗОН",
+    "details": "Импорт из файла"
+  },
+  {
+    "ts": "2026-07-02T16:06:08",
+    "action": "imported",
+    "payment_id": 15,
+    "bank_name": "Тинькоф",
+    "details": "Импорт из файла"
+  },
+  {
+    "ts": "2026-07-02T16:06:08",
+    "action": "imported",
+    "payment_id": 14,
+    "bank_name": "Халва",
+    "details": "Импорт из файла"
+  },
+  {
+    "ts": "2026-07-02T16:06:08",
+    "action": "imported",
+    "payment_id": 13,
+    "bank_name": "Яндекс Ф.",
+    "details": "Импорт из файла"
+  },
+  {
+    "ts": "2026-07-02T15:58:17",
+    "action": "settings_updated",
+    "payment_id": null,
+    "bank_name": "",
+    "details": "Обновлены настройки"
+  },
+  {
+    "ts": "2026-07-02T15:57:46",
+    "action": "settings_updated",
+    "payment_id": null,
+    "bank_name": "",
+    "details": "Обновлены настройки"
+  },
+  {
+    "ts": "2026-07-02T15:56:01",
+    "action": "settings_updated",
+    "payment_id": null,
+    "bank_name": "",
+    "details": "Обновлены настройки"
+  },
+  {
+    "ts": "2026-07-02T15:56:01",
+    "action": "settings_updated",
+    "payment_id": null,
+    "bank_name": "",
+    "details": "Обновлены настройки"
+  },
+  {
+    "ts": "2026-07-02T15:56:00",
+    "action": "settings_updated",
+    "payment_id": null,
+    "bank_name": "",
+    "details": "Обновлены настройки"
+  },
+  {
+    "ts": "2026-07-02T15:54:23",
+    "action": "paid",
+    "payment_id": 2,
+    "bank_name": "Сбер",
+    "details": "Отмечен как оплаченный"
+  },
+  {
+    "ts": "2026-07-02T15:54:21",
+    "action": "paid",
+    "payment_id": 6,
+    "bank_name": "Трубанк",
+    "details": "Отмечен как оплаченный"
+  },
+  {
+    "ts": "2026-07-02T15:54:15",
+    "action": "created",
+    "payment_id": 12,
+    "bank_name": "сеня",
+    "details": "Создан платеж"
+  },
+  {
+    "ts": "2026-07-02T15:53:32",
+    "action": "settings_updated",
+    "payment_id": null,
+    "bank_name": "",
+    "details": "Обновлены настройки"
+  },
+  {
+    "ts": "2026-07-02T15:52:51",
+    "action": "notification",
+    "payment_id": 6,
+    "bank_name": "Трубанк",
+    "details": "Срочный платеж"
+  },
+  {
+    "ts": "2026-07-02T15:52:51",
+    "action": "notification",
+    "payment_id": 2,
+    "bank_name": "Сбер",
+    "details": "Срочный платеж"
+  },
+  {
+    "ts": "2026-07-02T15:36:16",
+    "action": "notification",
+    "payment_id": 6,
+    "bank_name": "Срочно: Трубанк — 12.00 ₽",
+    "details": "Срочно: Трубанк — 12.00 ₽"
+  },
+  {
+    "ts": "2026-07-02T15:36:16",
+    "action": "notification",
+    "payment_id": 2,
+    "bank_name": "Срочно: Сбер — 500.00 ₽",
+    "details": "Срочно: Сбер — 500.00 ₽"
+  }
+]
