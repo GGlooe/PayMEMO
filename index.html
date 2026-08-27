@@ -946,15 +946,96 @@
             if(bankFilter !== 'all') filtered = filtered.filter(p => p.bank === bankFilter);
             if(typeFilter !== 'all') filtered = filtered.filter(p => p.type === typeFilter);
 
-            // Render Charts based on filtered
-            // ... (Similar logic to updateCharts but using 'filtered' array)
-            // For brevity, reusing main chart logic with filtered data would go here
-            // Implementing a simplified version:
+            // Render Charts based on filtered data
             
+            // Month Bar Chart
+            const months = [];
+            const monthData = [];
+            for(let i=5; i>=0; i--) {
+                const d = new Date();
+                d.setMonth(d.getMonth() - i);
+                const mKey = d.toLocaleString('ru', {month: 'long'});
+                months.push(mKey);
+                
+                const total = filtered
+                    .filter(p => {
+                        const pd = new Date(p.date);
+                        return pd.getMonth() === d.getMonth() && pd.getFullYear() === d.getFullYear();
+                    })
+                    .reduce((s, p) => s + parseFloat(p.amount), 0);
+                monthData.push(total);
+            }
+
+            if(charts.monthBar) charts.monthBar.destroy();
             const ctxBar = document.getElementById('monthBarChart').getContext('2d');
-            // ... Logic to aggregate filtered data by month ...
-            // (Skipping full implementation for brevity, but structure is ready)
-            showToast('Фильтры применены (демо)');
+            charts.monthBar = new Chart(ctxBar, {
+                type: 'bar',
+                data: {
+                    labels: months,
+                    datasets: [{
+                        label: 'Сумма платежей',
+                        data: monthData,
+                        backgroundColor: '#3b82f6'
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+
+            // Bank Pie Chart
+            const bankTotals = {};
+            filtered.forEach(p => {
+                bankTotals[p.bank] = (bankTotals[p.bank] || 0) + parseFloat(p.amount);
+            });
+
+            if(charts.bankPie) charts.bankPie.destroy();
+            const ctxBank = document.getElementById('bankPieChart').getContext('2d');
+            charts.bankPie = new Chart(ctxBank, {
+                type: 'pie',
+                data: {
+                    labels: Object.keys(bankTotals),
+                    datasets: [{
+                        data: Object.values(bankTotals),
+                        backgroundColor: ['#3b82f6', '#22c55e', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#64748b']
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+            });
+
+            // Type Line Chart
+            const typeMonths = {};
+            db.settings.types.forEach(t => {
+                typeMonths[t] = [];
+                for(let i=5; i>=0; i--) {
+                    const d = new Date();
+                    d.setMonth(d.getMonth() - i);
+                    const total = filtered
+                        .filter(p => p.type === t)
+                        .filter(p => {
+                            const pd = new Date(p.date);
+                            return pd.getMonth() === d.getMonth() && pd.getFullYear() === d.getFullYear();
+                        })
+                        .reduce((s, pay) => s + parseFloat(pay.amount), 0);
+                    typeMonths[t].push(total);
+                }
+            });
+
+            if(charts.typeLine) charts.typeLine.destroy();
+            const ctxTypeLine = document.getElementById('typeLineChart').getContext('2d');
+            charts.typeLine = new Chart(ctxTypeLine, {
+                type: 'line',
+                data: {
+                    labels: months,
+                    datasets: db.settings.types.map((t, idx) => ({
+                        label: t,
+                        data: typeMonths[t],
+                        borderColor: ['#3b82f6', '#22c55e', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#64748b'][idx % 7],
+                        tension: 0.4
+                    }))
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+
+            showToast('Аналитика обновлена');
         }
 
         // --- ACTIONS ---
@@ -1028,7 +1109,25 @@
             if(!p) return;
             document.getElementById('payId').value = p.id;
             document.getElementById('payBank').value = p.bank;
-            document.getElementById('payType').value = p.type;
+            
+            // Заполняем типы и выбираем текущий
+            const sel = document.getElementById('payType');
+            sel.innerHTML = '';
+            db.settings.types.forEach(t => {
+                const opt = document.createElement('option');
+                opt.value = t; opt.textContent = t;
+                sel.appendChild(opt);
+            });
+            // Если тип платежа не в списке, добавляем его
+            if (!db.settings.types.includes(p.type)) {
+                const opt = document.createElement('option');
+                opt.value = p.type; opt.textContent = p.type;
+                opt.selected = true;
+                sel.appendChild(opt);
+            } else {
+                sel.value = p.type;
+            }
+            
             document.getElementById('payAmount').value = p.amount;
             document.getElementById('payDate').value = p.date;
             document.getElementById('payComment').value = p.comment;
@@ -1137,13 +1236,33 @@
         function downloadTemplate() {
             const wb = XLSX.utils.book_new();
             const ws_data = [
-                ["Банк", "Тип платежа", "Сумма", "Дата (ГГГГ-ММ-ДД)", "Комментарий"],
-                ["Сбербанк", "Ипотека", "50000", "2023-12-25", "Ежемесячный"],
-                ["Тинькофф", "Кредитная карта", "15000", "2023-12-28", "Минимальный"]
+                ["Банк", "Тип платежа", "Сумма", "Дата (ДД.ММ.ГГГГ)", "Комментарий"],
+                ["Сбербанк", "Ипотека", "50000", "25.12.2023", "Ежемесячный"],
+                ["Тинькофф", "Кредитная карта", "15000", "28.12.2023", "Минимальный"]
             ];
             const ws = XLSX.utils.aoa_to_sheet(ws_data);
             XLSX.utils.book_append_sheet(wb, ws, "Шаблон");
             XLSX.writeFile(wb, "шаблон_платежей.xlsx");
+        }
+
+        function parseDate(dateStr) {
+            if (!dateStr) return new Date().toISOString().split('T')[0];
+            
+            // Пробуем формат ДД.ММ.ГГГГ
+            const ruDateMatch = String(dateStr).match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);
+            if (ruDateMatch) {
+                const [, day, month, year] = ruDateMatch;
+                return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+            }
+            
+            // Пробуем формат ГГГГ-ММ-ДД
+            const isoDateMatch = String(dateStr).match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+            if (isoDateMatch) {
+                return dateStr;
+            }
+            
+            // Если дата уже в правильном формате или не распознана
+            return dateStr;
         }
 
         function handleImport(input) {
@@ -1159,14 +1278,19 @@
                 let count = 0;
                 json.forEach(row => {
                     if(row['Банк'] && row['Сумма']) {
+                        const rawDate = row['Дата (ДД.ММ.ГГГГ)'] || row['Дата (ГГГГ-ММ-ДД)'] || row['Дата'];
+                        const parsedDate = parseDate(rawDate);
+                        const paymentType = row['Тип платежа'] || 'Прочее';
+                        
                         db.payments.push({
                             id: Date.now().toString() + Math.random(),
                             bank: row['Банк'],
-                            type: row['Тип платежа'] || 'Прочее',
+                            type: paymentType,
                             amount: row['Сумма'],
-                            date: row['Дата (ГГГГ-ММ-ДД)'] || new Date().toISOString().split('T')[0],
+                            date: parsedDate,
                             comment: row['Комментарий'] || '',
-                            archived: false
+                            archived: false,
+                            owner: db.currentUser ? db.currentUser.login : null
                         });
                         count++;
                     }
