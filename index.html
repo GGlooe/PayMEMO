@@ -3,14 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Payment Tracker Pro</title>
+    <title>PayMEMO - Учет платежей</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- SheetJS for Excel -->
-    <script src="https://cdn.sheetjs.com/xlsx-0.19.3/package/dist/xlsx.full.min.js"></script>
-    <!-- Icons -->
+    <!-- SheetJS для Excel -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.css"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- Иконки -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <script>
@@ -39,573 +40,670 @@
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         .dark ::-webkit-scrollbar-thumb { background: #475569; }
-        
-        .modal {
-            transition: opacity 0.25s ease;
-        }
-        body.modal-active { overflow: hidden; }
+        .modal-overlay { background-color: rgba(0,0,0,0.5); }
     </style>
 </head>
-<body class="bg-gray-100 text-gray-800 dark:bg-darkBg dark:text-gray-200 h-screen flex overflow-hidden">
+<body class="bg-gray-50 text-gray-800 dark:bg-darkBg dark:text-gray-100 h-screen overflow-hidden flex flex-col">
 
-    <!-- Mobile Header -->
-    <div class="md:hidden fixed w-full bg-white dark:bg-darkCard z-20 flex justify-between items-center p-4 shadow-md">
-        <h1 class="text-xl font-bold text-primary">PayTracker</h1>
-        <button onclick="toggleSidebar()" class="text-gray-600 dark:text-gray-300 focus:outline-none">
-            <i class="fas fa-bars text-2xl"></i>
-        </button>
+    <!-- Авторизация -->
+    <div id="authScreen" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-200 dark:bg-darkBg">
+        <div class="bg-white dark:bg-darkCard p-8 rounded-xl shadow-2xl w-full max-w-md">
+            <h2 class="text-3xl font-bold text-center mb-6 text-primary">PayMEMO</h2>
+            <form id="loginForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium mb-1">Логин</label>
+                    <input type="text" id="username" class="w-full p-3 rounded-lg border dark:bg-gray-700 dark:border-gray-600 focus:ring-2 focus:ring-primary outline-none" placeholder="admin">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Пароль</label>
+                    <input type="password" id="password" class="w-full p-3 rounded-lg border dark:bg-gray-700 dark:border-gray-600 focus:ring-2 focus:ring-primary outline-none" placeholder="••••">
+                </div>
+                <button type="submit" class="w-full bg-primary hover:bg-blue-600 text-white font-bold py-3 rounded-lg transition">Войти</button>
+                <p id="loginError" class="text-danger text-center text-sm hidden">Неверный логин или пароль</p>
+            </form>
+        </div>
     </div>
 
-    <!-- Sidebar -->
-    <aside id="sidebar" class="bg-white dark:bg-darkCard w-64 fixed h-full shadow-lg transform -translate-x-full md:translate-x-0 z-30 sidebar-transition flex flex-col justify-between">
-        <div>
-            <div class="p-6 border-b border-gray-200 dark:border-gray-700 hidden md:block">
-                <h1 class="text-2xl font-bold text-primary"><i class="fas fa-wallet mr-2"></i>PayTracker</h1>
-            </div>
-            
-            <nav class="mt-6 px-4 space-y-2">
-                <a href="#" onclick="showPage('dashboard')" class="nav-item block px-4 py-3 rounded-lg hover:bg-blue-50 dark:hover:bg-gray-700 transition-colors text-primary font-medium bg-blue-50 dark:bg-gray-700">
-                    <i class="fas fa-chart-line w-6"></i> Дашборд
-                </a>
-                <a href="#" onclick="showPage('payments')" class="nav-item block px-4 py-3 rounded-lg hover:bg-blue-50 dark:hover:bg-gray-700 transition-colors text-gray-600 dark:text-gray-400">
-                    <i class="fas fa-list w-6"></i> Платежи
-                </a>
-                <a href="#" onclick="showPage('archive')" class="nav-item block px-4 py-3 rounded-lg hover:bg-blue-50 dark:hover:bg-gray-700 transition-colors text-gray-600 dark:text-gray-400">
-                    <i class="fas fa-archive w-6"></i> Архив
-                </a>
-                <a href="#" onclick="showPage('analytics')" class="nav-item block px-4 py-3 rounded-lg hover:bg-blue-50 dark:hover:bg-gray-700 transition-colors text-gray-600 dark:text-gray-400">
-                    <i class="fas fa-chart-pie w-6"></i> Аналитика
-                </a>
-                <a href="#" onclick="showPage('logs')" class="nav-item block px-4 py-3 rounded-lg hover:bg-blue-50 dark:hover:bg-gray-700 transition-colors text-gray-600 dark:text-gray-400">
-                    <i class="fas fa-history w-6"></i> Логи событий
-                </a>
-                <a href="#" onclick="showPage('settings')" class="nav-item block px-4 py-3 rounded-lg hover:bg-blue-50 dark:hover:bg-gray-700 transition-colors text-gray-600 dark:text-gray-400">
-                    <i class="fas fa-cog w-6"></i> Настройки
-                </a>
-            </nav>
-        </div>
-
-        <div class="p-4 border-t border-gray-200 dark:border-gray-700">
-            <div class="flex items-center gap-3 mb-4">
-                <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-bold" id="userAvatar">A</div>
-                <div>
-                    <p class="text-sm font-bold" id="userNameDisplay">Admin</p>
-                    <p class="text-xs text-gray-500 dark:text-gray-400" id="userRoleDisplay">Администратор</p>
-                </div>
-            </div>
-            <button onclick="logout()" class="w-full py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition text-sm">
-                <i class="fas fa-sign-out-alt mr-2"></i> Выйти
-            </button>
-        </div>
-    </aside>
-
-    <!-- Main Content -->
-    <main class="flex-1 md:ml-64 p-4 md:p-8 pt-20 md:pt-8 overflow-y-auto h-full relative">
+    <!-- Основное приложение -->
+    <div id="appScreen" class="hidden flex-1 flex overflow-hidden">
         
-        <!-- Login Screen -->
-        <div id="loginPage" class="fixed inset-0 bg-gray-100 dark:bg-darkBg z-50 flex items-center justify-center p-4">
-            <div class="bg-white dark:bg-darkCard p-8 rounded-xl shadow-2xl w-full max-w-md">
-                <h2 class="text-2xl font-bold text-center mb-6 text-primary">Вход в систему</h2>
-                <form onsubmit="handleLogin(event)" class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium mb-1">Логин</label>
-                        <input type="text" id="loginUsername" class="w-full p-3 rounded-lg border dark:bg-gray-800 dark:border-gray-700 focus:ring-2 focus:ring-primary outline-none" required>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium mb-1">Пароль</label>
-                        <input type="password" id="loginPassword" class="w-full p-3 rounded-lg border dark:bg-gray-800 dark:border-gray-700 focus:ring-2 focus:ring-primary outline-none" required>
-                    </div>
-                    <button type="submit" class="w-full bg-primary hover:bg-blue-600 text-white font-bold py-3 rounded-lg transition">Войти</button>
-                </form>
-                <p class="mt-4 text-xs text-center text-gray-500">По умолчанию: admin / admin</p>
-            </div>
+        <!-- Мобильная шапка -->
+        <div class="md:hidden fixed top-0 left-0 right-0 h-16 bg-white dark:bg-darkCard shadow z-20 flex items-center justify-between px-4">
+            <button id="mobileMenuBtn" class="text-gray-600 dark:text-gray-300 focus:outline-none">
+                <i class="fas fa-bars text-2xl"></i>
+            </button>
+            <span class="font-bold text-lg text-primary">PayMEMO</span>
+            <div class="w-8"></div> <!-- Spacer -->
         </div>
 
-        <!-- Dashboard Page -->
-        <div id="dashboardPage" class="page-section hidden space-y-6">
-            <h2 class="text-2xl font-bold mb-4">Обзор финансов</h2>
+        <!-- Боковое меню -->
+        <aside id="sidebar" class="bg-white dark:bg-darkCard w-64 flex-shrink-0 border-r dark:border-gray-700 sidebar-transition absolute md:relative h-full z-10 transform -translate-x-full md:translate-x-0 pt-16 md:pt-0 flex flex-col">
+            <div class="p-6 hidden md:block">
+                <h1 class="text-2xl font-bold text-primary">PayMEMO</h1>
+                <p class="text-xs text-gray-500 mt-1" id="currentUserDisplay">User</p>
+            </div>
             
-            <!-- Stats Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm border-l-4 border-primary">
-                    <p class="text-gray-500 dark:text-gray-400 text-sm">К оплате в этом месяце</p>
-                    <h3 class="text-2xl font-bold mt-1" id="dashMonthTotal">0 ₽</h3>
-                </div>
-                <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm border-l-4 border-danger">
-                    <p class="text-gray-500 dark:text-gray-400 text-sm">Просрочено</p>
-                    <h3 class="text-2xl font-bold mt-1 text-danger" id="dashOverdueCount">0</h3>
-                </div>
-                <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm border-l-4 border-warning">
-                    <p class="text-gray-500 dark:text-gray-400 text-sm">Ближайшие (3 дня)</p>
-                    <h3 class="text-2xl font-bold mt-1 text-warning" id="dashUpcomingCount">0</h3>
-                </div>
-                <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm border-l-4 border-success">
-                    <p class="text-gray-500 dark:text-gray-400 text-sm">Оплачено в месяц</p>
-                    <h3 class="text-2xl font-bold mt-1 text-success" id="dashPaidMonth">0 ₽</h3>
-                </div>
-            </div>
-
-            <!-- Charts Row -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm">
-                    <h3 class="font-bold mb-4">Статус платежей</h3>
-                    <div class="h-64 relative">
-                        <canvas id="statusChart"></canvas>
-                    </div>
-                </div>
-                <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm">
-                    <h3 class="font-bold mb-4">Расходы по банкам</h3>
-                    <div class="h-64 relative">
-                        <canvas id="bankChart"></canvas>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Upcoming List -->
-            <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="font-bold">Ближайшие платежи</h3>
-                    <button onclick="showPage('payments')" class="text-sm text-primary hover:underline">Все платежи</button>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="text-gray-500 dark:text-gray-400 text-sm border-b dark:border-gray-700">
-                                <th class="py-3">Банк</th>
-                                <th class="py-3">Тип</th>
-                                <th class="py-3">Дата</th>
-                                <th class="py-3 text-right">Сумма</th>
-                                <th class="py-3 text-center">Действие</th>
-                            </tr>
-                        </thead>
-                        <tbody id="dashUpcomingTable" class="text-sm">
-                            <!-- JS Render -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- Payments Page -->
-        <div id="paymentsPage" class="page-section hidden space-y-6">
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <h2 class="text-2xl font-bold">Активные платежи</h2>
-                <div class="flex gap-2">
-                    <button onclick="openModal('paymentModal')" class="bg-primary hover:bg-blue-600 text-white px-4 py-2 rounded-lg shadow transition flex items-center">
-                        <i class="fas fa-plus mr-2"></i> Создать
-                    </button>
-                    <label class="bg-secondary hover:bg-gray-600 text-white px-4 py-2 rounded-lg shadow transition cursor-pointer flex items-center">
-                        <i class="fas fa-file-excel mr-2"></i> Импорт
-                        <input type="file" id="excelImport" accept=".xlsx, .xls" class="hidden" onchange="importExcel(this)">
-                    </label>
-                </div>
-            </div>
-
-            <div class="bg-white dark:bg-darkCard rounded-xl shadow-sm overflow-hidden">
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left">
-                        <thead class="bg-gray-50 dark:bg-gray-800 text-gray-500 dark:text-gray-400 text-sm">
-                            <tr>
-                                <th class="p-4">Банк</th>
-                                <th class="p-4">Тип</th>
-                                <th class="p-4">Дата платежа</th>
-                                <th class="p-4">Сумма</th>
-                                <th class="p-4">Комментарий</th>
-                                <th class="p-4 text-center">Действия</th>
-                            </tr>
-                        </thead>
-                        <tbody id="paymentsTableBody" class="divide-y divide-gray-200 dark:divide-gray-700 text-sm">
-                            <!-- JS Render -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- Archive Page -->
-        <div id="archivePage" class="page-section hidden space-y-6">
-            <div class="flex justify-between items-center">
-                <h2 class="text-2xl font-bold">Архив оплаченных</h2>
-                <button onclick="confirmAction('clearArchive', 'Вы уверены? Это удалит ВСЕ записи из архива.', clearArchive)" class="text-danger text-sm hover:underline">Очистить архив</button>
-            </div>
-            <div class="bg-white dark:bg-darkCard rounded-xl shadow-sm overflow-hidden">
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left">
-                        <thead class="bg-gray-50 dark:bg-gray-800 text-gray-500 dark:text-gray-400 text-sm">
-                            <tr>
-                                <th class="p-4">Банк</th>
-                                <th class="p-4">Тип</th>
-                                <th class="p-4">Дата оплаты</th>
-                                <th class="p-4">Сумма</th>
-                                <th class="p-4 text-center">Действия</th>
-                            </tr>
-                        </thead>
-                        <tbody id="archiveTableBody" class="divide-y divide-gray-200 dark:divide-gray-700 text-sm">
-                            <!-- JS Render -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- Analytics Page -->
-        <div id="analyticsPage" class="page-section hidden space-y-6">
-            <h2 class="text-2xl font-bold">Аналитика</h2>
-            
-            <div class="bg-white dark:bg-darkCard p-4 rounded-xl shadow-sm mb-6 flex flex-wrap gap-4 items-end">
-                <div>
-                    <label class="block text-xs text-gray-500 mb-1">Фильтр по банку</label>
-                    <select id="analyticBankFilter" onchange="renderAnalytics()" class="p-2 rounded border dark:bg-gray-800 dark:border-gray-700 text-sm w-40">
-                        <option value="all">Все банки</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs text-gray-500 mb-1">Фильтр по типу</label>
-                    <select id="analyticTypeFilter" onchange="renderAnalytics()" class="p-2 rounded border dark:bg-gray-800 dark:border-gray-700 text-sm w-40">
-                        <option value="all">Все типы</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 h-auto">
-                <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm h-96">
-                    <h3 class="font-bold mb-4">Динамика платежей (по месяцам)</h3>
-                    <div class="h-80 w-full">
-                        <canvas id="analyticsTrendChart"></canvas>
-                    </div>
-                </div>
-                <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm h-96">
-                    <h3 class="font-bold mb-4">Структура расходов</h3>
-                    <div class="h-80 w-full flex justify-center">
-                        <canvas id="analyticsStructureChart"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Logs Page -->
-        <div id="logsPage" class="page-section hidden space-y-6">
-            <div class="flex justify-between items-center">
-                <h2 class="text-2xl font-bold">Журнал событий</h2>
-                <button onclick="confirmAction('clearLogs', 'Очистить логи?', clearLogs)" class="text-danger text-sm hover:underline">Очистить</button>
-            </div>
-            <div class="bg-white dark:bg-darkCard rounded-xl shadow-sm overflow-hidden">
-                <div class="overflow-x-auto max-h-[600px] overflow-y-auto">
-                    <table class="w-full text-left">
-                        <thead class="bg-gray-50 dark:bg-gray-800 text-gray-500 dark:text-gray-400 text-sm sticky top-0">
-                            <tr>
-                                <th class="p-4">Время</th>
-                                <th class="p-4">Пользователь</th>
-                                <th class="p-4">Событие</th>
-                                <th class="p-4">Детали</th>
-                            </tr>
-                        </thead>
-                        <tbody id="logsTableBody" class="divide-y divide-gray-200 dark:divide-gray-700 text-sm">
-                            <!-- JS Render -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- Settings Page -->
-        <div id="settingsPage" class="page-section hidden space-y-8">
-            <h2 class="text-2xl font-bold">Настройки системы</h2>
-
-            <!-- Profile & Password -->
-            <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm">
-                <h3 class="text-lg font-bold mb-4 border-b dark:border-gray-700 pb-2">Профиль и Безопасность</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <label class="block text-sm mb-1">Ваше имя</label>
-                        <input type="text" id="settingName" class="w-full p-2 rounded border dark:bg-gray-800 dark:border-gray-700">
-                        <button onclick="updateProfile()" class="mt-2 bg-primary text-white px-4 py-2 rounded text-sm">Сохранить имя</button>
-                    </div>
-                    <div>
-                        <label class="block text-sm mb-1">Сменить пароль</label>
-                        <input type="password" id="settingNewPass" class="w-full p-2 rounded border dark:bg-gray-800 dark:border-gray-700" placeholder="Новый пароль">
-                        <button onclick="changePassword()" class="mt-2 bg-warning text-white px-4 py-2 rounded text-sm">Изменить пароль</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Notifications -->
-            <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm">
-                <div class="flex justify-between items-center mb-4 border-b dark:border-gray-700 pb-2">
-                    <h3 class="text-lg font-bold">Уведомления</h3>
-                    <button onclick="testNotification()" class="text-xs bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700">Тест звука</button>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                        <label class="block text-sm mb-1">Время проверки (часы)</label>
-                        <input type="time" id="notifTime" class="w-full p-2 rounded border dark:bg-gray-800 dark:border-gray-700">
-                    </div>
-                    <div>
-                        <label class="block text-sm mb-1">Предупреждать за (дней)</label>
-                        <input type="number" id="notifDaysBefore" class="w-full p-2 rounded border dark:bg-gray-800 dark:border-gray-700" value="3">
-                    </div>
-                    <div class="flex items-end">
-                        <button onclick="saveNotificationSettings()" class="w-full bg-primary text-white py-2 rounded">Сохранить настройки</button>
-                    </div>
-                </div>
-                <p class="text-xs text-gray-500 mt-2">Уведомления приходят в указанное время о платежах, дата которых совпадает с "Сегодня" или наступает через N дней.</p>
-            </div>
-
-            <!-- Payment Types -->
-            <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm">
-                <h3 class="text-lg font-bold mb-4 border-b dark:border-gray-700 pb-2">Типы платежей</h3>
-                <div class="flex gap-2 mb-4">
-                    <input type="text" id="newPaymentType" class="flex-1 p-2 rounded border dark:bg-gray-800 dark:border-gray-700" placeholder="Например: Автокредит">
-                    <button onclick="addPaymentType()" class="bg-success text-white px-4 py-2 rounded">Добавить</button>
-                </div>
-                <div id="typesList" class="flex flex-wrap gap-2">
-                    <!-- Types rendered here -->
-                </div>
-            </div>
-
-            <!-- Users Management (Admin Only) -->
-            <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm">
-                <h3 class="text-lg font-bold mb-4 border-b dark:border-gray-700 pb-2">Пользователи</h3>
-                <div class="flex gap-2 mb-4">
-                    <input type="text" id="newUserLogin" class="flex-1 p-2 rounded border dark:bg-gray-800 dark:border-gray-700" placeholder="Логин">
-                    <input type="password" id="newUserPass" class="flex-1 p-2 rounded border dark:bg-gray-800 dark:border-gray-700" placeholder="Пароль">
-                    <button onclick="addUser()" class="bg-primary text-white px-4 py-2 rounded">Создать</button>
-                </div>
-                <ul id="usersList" class="space-y-2 text-sm">
-                    <!-- Users rendered here -->
+            <nav class="flex-1 overflow-y-auto py-4">
+                <ul class="space-y-1 px-3">
+                    <li><button onclick="router('dashboard')" class="nav-item w-full text-left px-4 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-3"><i class="fas fa-home w-5"></i> Дашборд</button></li>
+                    <li><button onclick="router('payments')" class="nav-item w-full text-left px-4 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-3"><i class="fas fa-list w-5"></i> Платежи</button></li>
+                    <li><button onclick="router('archive')" class="nav-item w-full text-left px-4 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-3"><i class="fas fa-archive w-5"></i> Архив</button></li>
+                    <li><button onclick="router('analytics')" class="nav-item w-full text-left px-4 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-3"><i class="fas fa-chart-pie w-5"></i> Аналитика</button></li>
+                    <li id="adminLogsLink" class="hidden"><button onclick="router('logs')" class="nav-item w-full text-left px-4 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-3"><i class="fas fa-history w-5"></i> Логи событий</button></li>
+                    <li id="adminUsersLink" class="hidden"><button onclick="router('users')" class="nav-item w-full text-left px-4 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-3"><i class="fas fa-users w-5"></i> Пользователи</button></li>
                 </ul>
-            </div>
+            </nav>
 
-            <!-- Excel Template -->
-            <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm">
-                <h3 class="text-lg font-bold mb-2">Импорт из Excel</h3>
-                <p class="text-sm text-gray-500 mb-4">Файл должен содержать заголовки: <b>Банк, Тип, Сумма, Дата, Комментарий</b>.</p>
-                <button onclick="downloadTemplate()" class="bg-secondary text-white px-4 py-2 rounded text-sm">
-                    <i class="fas fa-download mr-2"></i> Скачать шаблон файла
-                </button>
+            <div class="p-4 border-t dark:border-gray-700">
+                <button onclick="router('settings')" class="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-3 mb-2"><i class="fas fa-cog w-5"></i> Настройки</button>
+                <button onclick="logout()" class="w-full text-left px-4 py-3 rounded-lg text-danger hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-3"><i class="fas fa-sign-out-alt w-5"></i> Выйти</button>
+            </div>
+        </aside>
+
+        <!-- Основной контент -->
+        <main class="flex-1 overflow-y-auto p-4 md:p-8 pt-20 md:pt-8 relative">
+            <!-- Контейнер для уведомлений -->
+            <div id="toastContainer" class="fixed top-4 right-4 z-50 space-y-2"></div>
+
+            <!-- Страницы -->
+            <div id="pageContent"></div>
+        </main>
+    </div>
+
+    <!-- Модальные окна -->
+    <!-- Универсальное подтверждение -->
+    <div id="confirmModal" class="fixed inset-0 z-50 hidden items-center justify-center modal-overlay">
+        <div class="bg-white dark:bg-darkCard rounded-xl p-6 max-w-sm w-full mx-4 shadow-2xl transform transition-all scale-100">
+            <h3 class="text-lg font-bold mb-2" id="confirmTitle">Подтверждение</h3>
+            <p class="text-gray-600 dark:text-gray-300 mb-6" id="confirmMessage">Вы уверены?</p>
+            <div class="flex justify-end gap-3">
+                <button onclick="closeModal('confirmModal')" class="px-4 py-2 rounded-lg border dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700">Отмена</button>
+                <button id="confirmActionBtn" class="px-4 py-2 rounded-lg bg-danger text-white hover:bg-red-600">Да, удалить</button>
             </div>
         </div>
+    </div>
 
-    </main>
-
-    <!-- Modal: Add/Edit Payment -->
-    <div id="paymentModal" class="modal opacity-0 pointer-events-none fixed w-full h-full top-0 left-0 flex items-center justify-center z-50">
-        <div class="modal-overlay absolute w-full h-full bg-gray-900 opacity-50"></div>
-        <div class="modal-container bg-white dark:bg-darkCard w-11/12 md:max-w-md mx-auto rounded-xl shadow-2xl z-50 overflow-y-auto">
-            <div class="modal-content py-4 text-left px-6">
-                <div class="flex justify-between items-center pb-3 border-b dark:border-gray-700">
-                    <p class="text-xl font-bold" id="modalTitle">Новый платеж</p>
-                    <div class="cursor-pointer z-50" onclick="closeModal('paymentModal')">
-                        <i class="fas fa-times text-gray-500"></i>
-                    </div>
-                </div>
-                <form id="paymentForm" onsubmit="handlePaymentSubmit(event)" class="my-5 space-y-4">
-                    <input type="hidden" id="editPaymentId">
+    <!-- Модальное окно Платежа -->
+    <div id="paymentModal" class="fixed inset-0 z-50 hidden items-center justify-center modal-overlay">
+        <div class="bg-white dark:bg-darkCard rounded-xl p-6 max-w-lg w-full mx-4 shadow-2xl max-h-[90vh] overflow-y-auto">
+            <h3 class="text-xl font-bold mb-4" id="paymentModalTitle">Новый платеж</h3>
+            <form id="paymentForm" class="space-y-4">
+                <input type="hidden" id="payId">
+                <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-bold mb-1">Банк</label>
-                        <input type="text" id="payBank" class="w-full p-2 rounded border dark:bg-gray-800 dark:border-gray-700" required list="bankList">
-                        <datalist id="bankList"></datalist>
+                        <label class="block text-sm mb-1">Банк</label>
+                        <input type="text" id="payBank" required class="w-full p-2 rounded border dark:bg-gray-700 dark:border-gray-600">
                     </div>
                     <div>
-                        <label class="block text-sm font-bold mb-1">Тип платежа</label>
-                        <select id="payType" class="w-full p-2 rounded border dark:bg-gray-800 dark:border-gray-700" required>
-                            <!-- Options filled by JS -->
+                        <label class="block text-sm mb-1">Тип платежа</label>
+                        <select id="payType" class="w-full p-2 rounded border dark:bg-gray-700 dark:border-gray-600">
+                            <!-- Заполняется динамически -->
                         </select>
                     </div>
-                    <div>
-                        <label class="block text-sm font-bold mb-1">Сумма</label>
-                        <input type="number" id="payAmount" class="w-full p-2 rounded border dark:bg-gray-800 dark:border-gray-700" step="0.01" required>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-bold mb-1">Дата платежа</label>
-                        <input type="date" id="payDate" class="w-full p-2 rounded border dark:bg-gray-800 dark:border-gray-700" required>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-bold mb-1">Комментарий</label>
-                        <textarea id="payComment" class="w-full p-2 rounded border dark:bg-gray-800 dark:border-gray-700" rows="2"></textarea>
-                    </div>
-                    <div class="flex justify-end pt-2 gap-2">
-                        <button type="button" onclick="closeModal('paymentModal')" class="px-4 py-2 bg-transparent p-3 rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700">Отмена</button>
-                        <button type="submit" class="px-4 py-2 bg-primary rounded-lg text-white hover:bg-blue-600">Сохранить</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal: Confirmation -->
-    <div id="confirmModal" class="modal opacity-0 pointer-events-none fixed w-full h-full top-0 left-0 flex items-center justify-center z-50">
-        <div class="modal-overlay absolute w-full h-full bg-gray-900 opacity-50"></div>
-        <div class="modal-container bg-white dark:bg-darkCard w-11/12 md:max-w-sm mx-auto rounded-xl shadow-2xl z-50 p-6 text-center">
-            <i class="fas fa-exclamation-triangle text-4xl text-warning mb-4"></i>
-            <h3 class="text-lg font-bold mb-2">Подтверждение</h3>
-            <p id="confirmMessage" class="text-gray-600 dark:text-gray-300 mb-6 text-sm">Вы уверены?</p>
-            <div class="flex justify-center gap-4">
-                <button onclick="closeModal('confirmModal')" class="px-4 py-2 bg-gray-300 dark:bg-gray-700 rounded text-gray-800 dark:text-white">Отмена</button>
-                <button id="confirmBtn" class="px-4 py-2 bg-danger text-white rounded">Да, удалить</button>
-            </div>
+                </div>
+                <div>
+                    <label class="block text-sm mb-1">Сумма</label>
+                    <input type="number" step="0.01" id="payAmount" required class="w-full p-2 rounded border dark:bg-gray-700 dark:border-gray-600">
+                </div>
+                <div>
+                    <label class="block text-sm mb-1">Дата платежа</label>
+                    <input type="date" id="payDate" required class="w-full p-2 rounded border dark:bg-gray-700 dark:border-gray-600">
+                </div>
+                <div>
+                    <label class="block text-sm mb-1">Комментарий</label>
+                    <textarea id="payComment" rows="2" class="w-full p-2 rounded border dark:bg-gray-700 dark:border-gray-600"></textarea>
+                </div>
+                <div class="flex justify-end gap-3 pt-4">
+                    <button type="button" onclick="closeModal('paymentModal')" class="px-4 py-2 rounded border dark:border-gray-600">Отмена</button>
+                    <button type="submit" class="px-4 py-2 rounded bg-primary text-white">Сохранить</button>
+                </div>
+            </form>
         </div>
     </div>
 
     <script>
-        // --- STATE MANAGEMENT ---
-        const defaultState = {
-            users: [{id: 1, login: 'admin', password: 'admin', name: 'Администратор', role: 'admin'}],
+        // --- КОНФИГУРАЦИЯ И СОСТОЯНИЕ ---
+        const DB_KEY = 'paymemo_db_v2';
+        let currentUser = null;
+        let db = {
+            users: [{ id: 1, username: 'admin', password: 'admin', role: 'admin' }],
             payments: [],
-            archive: [],
             logs: [],
             settings: {
-                notifyTime: '09:00',
+                theme: 'light',
                 notifyDaysBefore: 3,
-                paymentTypes: ['Ипотека', 'Кредитная карта', 'Автокредит', 'Потребительский кредит', 'Коммуналка']
-            },
-            currentUser: null,
-            theme: 'light'
+                notifyTime: '09:00',
+                paymentTypes: ['Ипотека', 'Автокредит', 'Кредитная карта', 'Потребительский кредит', 'Коммуналка', 'Интернет/Телефон']
+            }
         };
 
-        let appData = JSON.parse(localStorage.getItem('payTrackerData')) || defaultState;
-        
-        // Save helper
-        function saveData() {
-            localStorage.setItem('payTrackerData', JSON.stringify(appData));
-            renderAll();
+        // --- ИНИЦИАЛИЗАЦИЯ ---
+        function init() {
+            loadData();
+            checkAuth();
+            setupEventListeners();
+            
+            // Проверка на битые данные (если вдруг массив users не массив)
+            if (!Array.isArray(db.users)) {
+                console.warn("DB corrupted, resetting users");
+                db.users = [{ id: 1, username: 'admin', password: 'admin', role: 'admin' }];
+                saveData();
+            }
+            // Гарантируем наличие поля roles у админа если его нет
+            if (db.users.length > 0 && !db.users[0].role) {
+                db.users[0].role = 'admin';
+                saveData();
+            }
         }
 
-        function addLog(action, details) {
-            const log = {
+        function loadData() {
+            const stored = localStorage.getItem(DB_KEY);
+            if (stored) {
+                try {
+                    const parsed = JSON.parse(stored);
+                    // Мерджим с дефолтными значениями на случай обновлений структуры
+                    db = { ...db, ...parsed };
+                    if(!db.settings) db.settings = { theme: 'light', paymentTypes: [] };
+                    if(!db.settings.paymentTypes || db.settings.paymentTypes.length === 0) {
+                         db.settings.paymentTypes = ['Ипотека', 'Автокредит', 'Кредитная карта', 'Потребительский кредит', 'Коммуналка'];
+                    }
+                } catch (e) {
+                    console.error("Ошибка чтения БД", e);
+                    localStorage.removeItem(DB_KEY);
+                }
+            }
+            applyTheme(db.settings.theme);
+        }
+
+        function saveData() {
+            localStorage.setItem(DB_KEY, JSON.stringify(db));
+        }
+
+        function logEvent(action, details) {
+            const entry = {
                 id: Date.now(),
-                timestamp: new Date().toLocaleString(),
-                user: appData.currentUser ? appData.currentUser.login : 'System',
-                action: action,
-                details: details
+                date: new Date().toISOString(),
+                user: currentUser ? currentUser.username : 'System',
+                action,
+                details
             };
-            appData.logs.unshift(log); // Add to top
-            if(appData.logs.length > 100) appData.logs.pop(); // Keep last 100
+            db.logs.unshift(entry); // Добавляем в начало
+            if (db.logs.length > 1000) db.logs.pop(); // Храним последние 1000
             saveData();
         }
 
-        // --- AUTH ---
-        function handleLogin(e) {
-            e.preventDefault();
-            const l = document.getElementById('loginUsername').value;
-            const p = document.getElementById('loginPassword').value;
-            const user = appData.users.find(u => u.login === l && u.password === p);
-            
-            if (user) {
-                appData.currentUser = user;
-                appData.theme = localStorage.getItem('payTrackerTheme') || 'light';
-                applyTheme();
-                document.getElementById('loginPage').classList.add('hidden');
-                initApp();
-                addLog('Вход в систему', `Пользователь ${user.login} вошел в систему`);
+        // --- АВТОРИЗАЦИЯ ---
+        function checkAuth() {
+            const sessionUser = sessionStorage.getItem('paymemo_user');
+            if (sessionUser) {
+                currentUser = JSON.parse(sessionUser);
+                document.getElementById('authScreen').classList.add('hidden');
+                document.getElementById('appScreen').classList.remove('hidden');
+                document.getElementById('currentUserDisplay').textContent = currentUser.username;
+                
+                if (currentUser.role === 'admin') {
+                    document.getElementById('adminLogsLink').classList.remove('hidden');
+                    document.getElementById('adminUsersLink').classList.remove('hidden');
+                }
+                router('dashboard');
+                startNotificationCheck();
             } else {
-                alert('Неверный логин или пароль');
+                document.getElementById('authScreen').classList.remove('hidden');
+                document.getElementById('appScreen').classList.add('hidden');
             }
         }
 
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const u = document.getElementById('username').value;
+            const p = document.getElementById('password').value;
+            const user = db.users.find(user => user.username === u && user.password === p);
+            
+            if (user) {
+                currentUser = user;
+                sessionStorage.setItem('paymemo_user', JSON.stringify(user));
+                logEvent('Вход в систему', `Пользователь ${user.username} вошел`);
+                checkAuth();
+            } else {
+                document.getElementById('loginError').classList.remove('hidden');
+                logEvent('Ошибка входа', `Попытка входа с логином ${u}`);
+            }
+        });
+
         function logout() {
-            appData.currentUser = null;
+            logEvent('Выход из системы', `Пользователь ${currentUser.username} вышел`);
+            currentUser = null;
+            sessionStorage.removeItem('paymemo_user');
             location.reload();
         }
 
-        // --- NAVIGATION ---
-        function showPage(pageId) {
-            document.querySelectorAll('.page-section').forEach(el => el.classList.add('hidden'));
-            document.getElementById(pageId + 'Page').classList.remove('hidden');
+        // --- РОУТИНГ ---
+        function router(page) {
+            const content = document.getElementById('pageContent');
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => item.classList.remove('bg-blue-50', 'text-primary', 'dark:bg-gray-800'));
             
-            // Update active nav
-            document.querySelectorAll('.nav-item').forEach(el => {
-                el.classList.remove('bg-blue-50', 'dark:bg-gray-700', 'text-primary');
-                el.classList.add('text-gray-600', 'dark:text-gray-400');
-            });
-            // Simple hack to highlight active, in real app use IDs
-            event.currentTarget.classList.add('bg-blue-50', 'dark:bg-gray-700', 'text-primary');
-            event.currentTarget.classList.remove('text-gray-600', 'dark:text-gray-400');
+            // Подсветка активного пункта (упрощенно)
+            // ...
 
-            if(window.innerWidth < 768) toggleSidebar(); // Close menu on mobile
-            
-            if(pageId === 'analytics') renderAnalytics();
-            if(pageId === 'logs') renderLogs();
-            if(pageId === 'settings') renderSettings();
-        }
+            // Закрываем мобильное меню при переходе
+            if (window.innerWidth < 768) {
+                document.getElementById('sidebar').classList.add('-translate-x-full');
+            }
 
-        function toggleSidebar() {
-            const sb = document.getElementById('sidebar');
-            sb.classList.toggle('-translate-x-full');
-        }
-
-        // --- CORE LOGIC ---
-        function initApp() {
-            document.getElementById('userNameDisplay').innerText = appData.currentUser.name;
-            document.getElementById('userAvatar').innerText = appData.currentUser.name[0].toUpperCase();
-            document.getElementById('userRoleDisplay').innerText = appData.currentUser.role === 'admin' ? 'Администратор' : 'Пользователь';
-            
-            // Hide admin stuff if not admin
-            const adminElements = document.querySelectorAll('.admin-only');
-            adminElements.forEach(el => {
-                if(appData.currentUser.role !== 'admin') el.style.display = 'none';
-                else el.style.display = '';
-            });
-
-            renderDashboard();
-            renderPayments();
-            renderArchive();
-        }
-
-        function renderAll() {
-            if(!appData.currentUser) return;
-            renderDashboard();
-            renderPayments();
-            renderArchive();
-            // Analytics and others render on tab switch
-        }
-
-        // --- PAYMENTS ---
-        function openModal(id) {
-            const modal = document.getElementById(id);
-            modal.classList.remove('opacity-0', 'pointer-events-none');
-            document.body.classList.add('modal-active');
-            
-            if(id === 'paymentModal') {
-                document.getElementById('paymentForm').reset();
-                document.getElementById('editPaymentId').value = '';
-                document.getElementById('modalTitle').innerText = 'Новый платеж';
-                populateTypesSelect();
-                populateBanksDatalist();
+            switch(page) {
+                case 'dashboard': renderDashboard(content); break;
+                case 'payments': renderPayments(content); break;
+                case 'archive': renderArchive(content); break;
+                case 'analytics': renderAnalytics(content); break;
+                case 'settings': renderSettings(content); break;
+                case 'users': if(currentUser.role === 'admin') renderUsers(content); break;
+                case 'logs': if(currentUser.role === 'admin') renderLogs(content); break;
             }
         }
 
-        function closeModal(id) {
-            const modal = document.getElementById(id);
-            modal.classList.add('opacity-0', 'pointer-events-none');
-            document.body.classList.remove('modal-active');
+        // --- РЕНДЕРИНГ СТРАНИЦ ---
+
+        function renderDashboard(container) {
+            const now = new Date();
+            const currentMonth = now.getMonth();
+            const currentYear = now.getFullYear();
+
+            const activePayments = db.payments.filter(p => !p.archived);
+            const archivedPayments = db.payments.filter(p => p.archived);
+            
+            const upcoming = activePayments.filter(p => {
+                const d = new Date(p.date);
+                return d >= now && d.getTime() - now.getTime() < 14 * 24 * 60 * 60 * 1000;
+            }).sort((a,b) => new Date(a.date) - new Date(b.date));
+
+            const overdue = activePayments.filter(p => new Date(p.date) < now);
+            
+            const monthSum = archivedPayments
+                .filter(p => {
+                    const d = new Date(p.date); // Дата оплаты (когда архивирован или дата платежа?)
+                    // Будем считать по дате платежа для статистики
+                    return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+                })
+                .reduce((sum, p) => sum + parseFloat(p.amount), 0);
+
+            container.innerHTML = `
+                <h2 class="text-2xl font-bold mb-6">Дашборд</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                    <div class="bg-white dark:bg-darkCard p-4 rounded-xl shadow border-l-4 border-blue-500">
+                        <div class="text-gray-500 text-sm">Всего активных</div>
+                        <div class="text-2xl font-bold">${activePayments.length}</div>
+                    </div>
+                    <div class="bg-white dark:bg-darkCard p-4 rounded-xl shadow border-l-4 border-green-500">
+                        <div class="text-gray-500 text-sm">Оплачено в этом месяце</div>
+                        <div class="text-2xl font-bold">${monthSum.toLocaleString()} ₽</div>
+                    </div>
+                    <div class="bg-white dark:bg-darkCard p-4 rounded-xl shadow border-l-4 border-red-500">
+                        <div class="text-gray-500 text-sm">Просрочено</div>
+                        <div class="text-2xl font-bold text-red-500">${overdue.length}</div>
+                    </div>
+                    <div class="bg-white dark:bg-darkCard p-4 rounded-xl shadow border-l-4 border-yellow-500">
+                        <div class="text-gray-500 text-sm">Ближайшие (14 дней)</div>
+                        <div class="text-2xl font-bold">${upcoming.length}</div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow">
+                        <h3 class="font-bold mb-4 text-lg">🔥 Срочно к оплате</h3>
+                        ${overdue.length > 0 || upcoming.length > 0 ? `
+                            <div class="space-y-3">
+                                ${[...overdue, ...upcoming].slice(0, 5).map(p => `
+                                    <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg ${new Date(p.date) < now ? 'border-l-4 border-red-500' : ''}">
+                                        <div>
+                                            <div class="font-bold">${p.bank}</div>
+                                            <div class="text-xs text-gray-500">${p.type} • ${new Date(p.date).toLocaleDateString()}</div>
+                                        </div>
+                                        <div class="font-bold text-right">
+                                            <div>${parseFloat(p.amount).toLocaleString()} ₽</div>
+                                            ${new Date(p.date) < now ? '<span class="text-xs text-red-500">Просрочено</span>' : ''}
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        ` : '<div class="text-gray-500">Все платежи в порядке!</div>'}
+                    </div>
+                    
+                    <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow flex flex-col">
+                         <h3 class="font-bold mb-4 text-lg">Быстрые действия</h3>
+                         <div class="grid grid-cols-2 gap-4">
+                             <button onclick="openPaymentModal()" class="p-4 bg-primary text-white rounded-xl hover:bg-blue-600 transition flex flex-col items-center justify-center gap-2">
+                                 <i class="fas fa-plus text-2xl"></i> Новый платеж
+                             </button>
+                             <button onclick="document.getElementById('excelInput').click()" class="p-4 bg-green-600 text-white rounded-xl hover:bg-green-700 transition flex flex-col items-center justify-center gap-2">
+                                 <i class="fas fa-file-excel text-2xl"></i> Импорт Excel
+                             </button>
+                             <input type="file" id="excelInput" class="hidden" accept=".xlsx, .xls" onchange="handleExcelImport(this)">
+                         </div>
+                         <div class="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg text-sm text-blue-800 dark:text-blue-200">
+                             <i class="fas fa-info-circle mr-2"></i> Совет: Используйте импорт Excel для массового добавления. Формат: Банк, Тип, Сумма, Дата, Комментарий.
+                         </div>
+                    </div>
+                </div>
+            `;
         }
 
-        function populateTypesSelect() {
-            const sel = document.getElementById('payType');
-            sel.innerHTML = '';
-            appData.settings.paymentTypes.forEach(t => {
-                const opt = document.createElement('option');
-                opt.value = t;
-                opt.innerText = t;
-                sel.appendChild(opt);
+        function renderPayments(container) {
+            const list = db.payments.filter(p => !p.archived).sort((a,b) => new Date(a.date) - new Date(b.date));
+            
+            let html = `
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold">Активные платежи</h2>
+                    <div class="flex gap-2">
+                        <button onclick="openPaymentModal()" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-600"><i class="fas fa-plus mr-2"></i>Создать</button>
+                        <button onclick="document.getElementById('excelInputMain').click()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"><i class="fas fa-file-import mr-2"></i>Импорт</button>
+                        <input type="file" id="excelInputMain" class="hidden" accept=".xlsx, .xls" onchange="handleExcelImport(this)">
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-darkCard rounded-xl shadow overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead class="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 uppercase text-xs">
+                                <tr>
+                                    <th class="p-4">Дата</th>
+                                    <th class="p-4">Банк</th>
+                                    <th class="p-4">Тип</th>
+                                    <th class="p-4">Сумма</th>
+                                    <th class="p-4">Комментарий</th>
+                                    <th class="p-4 text-right">Действия</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y dark:divide-gray-700">
+            `;
+
+            if (list.length === 0) {
+                html += `<tr><td colspan="6" class="p-8 text-center text-gray-500">Список пуст</td></tr>`;
+            } else {
+                list.forEach(p => {
+                    const isOverdue = new Date(p.date) < new Date();
+                    html += `
+                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-800 ${isOverdue ? 'bg-red-50 dark:bg-red-900/10' : ''}">
+                            <td class="p-4 font-mono text-sm">${new Date(p.date).toLocaleDateString()}</td>
+                            <td class="p-4 font-bold">${p.bank}</td>
+                            <td class="p-4"><span class="px-2 py-1 bg-gray-200 dark:bg-gray-600 rounded text-xs">${p.type}</span></td>
+                            <td class="p-4 font-bold">${parseFloat(p.amount).toLocaleString()} ₽</td>
+                            <td class="p-4 text-sm text-gray-500 truncate max-w-xs">${p.comment || '-'}</td>
+                            <td class="p-4 text-right space-x-2">
+                                <button onclick="confirmAction('Оплатить платеж?', 'Переместить в архив?', () => markAsPaid(${p.id}))" class="text-green-600 hover:text-green-800" title="Оплатить"><i class="fas fa-check-circle"></i></button>
+                                <button onclick="openPaymentModal(${p.id})" class="text-blue-600 hover:text-blue-800" title="Редактировать"><i class="fas fa-edit"></i></button>
+                                <button onclick="confirmAction('Удалить платеж?', 'Это действие нельзя отменить.', () => deletePayment(${p.id}))" class="text-red-600 hover:text-red-800" title="Удалить"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+
+            html += `</tbody></table></div></div>`;
+            container.innerHTML = html;
+        }
+
+        function renderArchive(container) {
+            const list = db.payments.filter(p => p.archived).sort((a,b) => new Date(b.date) - new Date(a.date));
+            
+            let html = `
+                <h2 class="text-2xl font-bold mb-6">Архив платежей</h2>
+                <div class="bg-white dark:bg-darkCard rounded-xl shadow overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead class="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 uppercase text-xs">
+                                <tr>
+                                    <th class="p-4">Дата оплаты</th>
+                                    <th class="p-4">Банк</th>
+                                    <th class="p-4">Тип</th>
+                                    <th class="p-4">Сумма</th>
+                                    <th class="p-4 text-right">Действия</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y dark:divide-gray-700">
+            `;
+            
+            if (list.length === 0) {
+                html += `<tr><td colspan="5" class="p-8 text-center text-gray-500">Архив пуст</td></tr>`;
+            } else {
+                list.forEach(p => {
+                    html += `
+                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-800 opacity-75">
+                            <td class="p-4 font-mono text-sm">${new Date(p.date).toLocaleDateString()}</td>
+                            <td class="p-4 font-bold">${p.bank}</td>
+                            <td class="p-4"><span class="px-2 py-1 bg-gray-200 dark:bg-gray-600 rounded text-xs">${p.type}</span></td>
+                            <td class="p-4 font-bold text-green-600">+${parseFloat(p.amount).toLocaleString()} ₽</td>
+                            <td class="p-4 text-right space-x-2">
+                                <button onclick="confirmAction('Вернуть платеж?', 'Платеж снова станет активным.', () => restorePayment(${p.id}))" class="text-blue-600 hover:text-blue-800" title="Вернуть"><i class="fas fa-undo"></i></button>
+                                <button onclick="confirmAction('Удалить навсегда?', 'Это действие нельзя отменить.', () => deletePayment(${p.id}))" class="text-red-600 hover:text-red-800" title="Удалить"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+            html += `</tbody></table></div></div>`;
+            container.innerHTML = html;
+        }
+
+        function renderAnalytics(container) {
+            // Простая аналитика
+            const banks = {};
+            const types = {};
+            let total = 0;
+            
+            db.payments.filter(p => p.archived).forEach(p => {
+                const amount = parseFloat(p.amount);
+                total += amount;
+                banks[p.bank] = (banks[p.bank] || 0) + amount;
+                types[p.type] = (types[p.type] || 0) + amount;
             });
+
+            const bankLabels = Object.keys(banks);
+            const bankData = Object.values(banks);
+            
+            const typeLabels = Object.keys(types);
+            const typeData = Object.values(types);
+
+            container.innerHTML = `
+                <h2 class="text-2xl font-bold mb-6">Аналитика</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow">
+                        <h3 class="font-bold mb-4 text-center">По банкам</h3>
+                        <div class="relative h-64 w-full">
+                            <canvas id="chartBanks"></canvas>
+                        </div>
+                    </div>
+                    <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow">
+                        <h3 class="font-bold mb-4 text-center">По типам платежей</h3>
+                        <div class="relative h-64 w-full">
+                            <canvas id="chartTypes"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow">
+                    <h3 class="font-bold mb-4">Итого оплачено: ${total.toLocaleString()} ₽</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        ${bankLabels.map(b => `
+                            <div class="text-center p-3 bg-gray-50 dark:bg-gray-700 rounded">
+                                <div class="text-xs text-gray-500">${b}</div>
+                                <div class="font-bold">${banks[b].toLocaleString()} ₽</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+
+            setTimeout(() => {
+                new Chart(document.getElementById('chartBanks'), {
+                    type: 'bar',
+                    data: { labels: bankLabels, datasets: [{ label: 'Сумма (₽)', data: bankData, backgroundColor: '#3b82f6' }] },
+                    options: { responsive: true, maintainAspectRatio: false }
+                });
+                new Chart(document.getElementById('chartTypes'), {
+                    type: 'doughnut',
+                    data: { labels: typeLabels, datasets: [{ data: typeData, backgroundColor: ['#10b981', '#f59e0b', '#ef4444', '#6366f1', '#8b5cf6'] }] },
+                    options: { responsive: true, maintainAspectRatio: false }
+                });
+            }, 100);
         }
 
-        function populateBanksDatalist() {
-            const dl = document.getElementById('bankList');
-            dl.innerHTML = '';
-            const banks = [...new Set(appData.payments.map(p => p.bank))];
-            banks.forEach(b => {
-                const opt = document.createElement('option');
-                opt.value = b;
-                dl.appendChild(opt);
-            });
+        function renderSettings(container) {
+            const s = db.settings;
+            container.innerHTML = `
+                <h2 class="text-2xl font-bold mb-6">Настройки</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    
+                    <!-- Профиль -->
+                    <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow">
+                        <h3 class="font-bold mb-4 border-b dark:border-gray-700 pb-2">Профиль</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm mb-1">Сменить пароль</label>
+                                <input type="password" id="newPassword" class="w-full p-2 rounded border dark:bg-gray-700 dark:border-gray-600" placeholder="Новый пароль">
+                            </div>
+                            <button onclick="changePassword()" class="bg-primary text-white px-4 py-2 rounded hover:bg-blue-600">Обновить пароль</button>
+                        </div>
+                    </div>
+
+                    <!-- Уведомления -->
+                    <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow">
+                        <h3 class="font-bold mb-4 border-b dark:border-gray-700 pb-2">Уведомления</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm mb-1">Время проверки (часы:минуты)</label>
+                                <input type="time" id="notifyTime" value="${s.notifyTime}" class="w-full p-2 rounded border dark:bg-gray-700 dark:border-gray-600">
+                            </div>
+                            <div>
+                                <label class="block text-sm mb-1">Предупреждать за (дней)</label>
+                                <input type="number" id="notifyDays" value="${s.notifyDaysBefore}" class="w-full p-2 rounded border dark:bg-gray-700 dark:border-gray-600">
+                                <p class="text-xs text-gray-500 mt-1">Уведомление придет за N дней до даты платежа и в сам день платежа.</p>
+                            </div>
+                            <button onclick="testNotification()" class="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 w-full"><i class="fas fa-bell mr-2"></i>Тест уведомления</button>
+                            <button onclick="saveNotificationSettings()" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 w-full">Сохранить настройки</button>
+                        </div>
+                    </div>
+
+                    <!-- Типы платежей -->
+                    <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow lg:col-span-2">
+                        <h3 class="font-bold mb-4 border-b dark:border-gray-700 pb-2">Типы платежей</h3>
+                        <div class="flex gap-2 mb-4">
+                            <input type="text" id="newTypeInput" placeholder="Новый тип (например: Рассрочка)" class="flex-1 p-2 rounded border dark:bg-gray-700 dark:border-gray-600">
+                            <button onclick="addPaymentType()" class="bg-primary text-white px-4 py-2 rounded">Добавить</button>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            ${s.paymentTypes.map(t => `
+                                <span class="bg-gray-200 dark:bg-gray-700 px-3 py-1 rounded-full text-sm flex items-center gap-2">
+                                    ${t}
+                                    <button onclick="removePaymentType('${t}')" class="text-red-500 hover:text-red-700"><i class="fas fa-times"></i></button>
+                                </span>
+                            `).join('')}
+                        </div>
+                    </div>
+                    
+                    <!-- Экспорт/Импорт шаблона -->
+                    <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow lg:col-span-2">
+                         <h3 class="font-bold mb-4">Импорт данных</h3>
+                         <p class="text-sm text-gray-500 mb-4">Для корректного импорта скачайте шаблон, заполните его и загрузите обратно.</p>
+                         <button onclick="downloadTemplate()" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"><i class="fas fa-download mr-2"></i>Скачать шаблон Excel</button>
+                    </div>
+                </div>
+            `;
         }
 
-        function handlePaymentSubmit(e) {
+        function renderUsers(container) {
+            if (currentUser.role !== 'admin') return;
+            container.innerHTML = `
+                <h2 class="text-2xl font-bold mb-6">Пользователи</h2>
+                <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow mb-6">
+                    <h3 class="font-bold mb-4">Добавить пользователя</h3>
+                    <form onsubmit="createUser(event)" class="flex gap-4 flex-wrap">
+                        <input type="text" name="username" placeholder="Логин" required class="p-2 rounded border dark:bg-gray-700 dark:border-gray-600">
+                        <input type="password" name="password" placeholder="Пароль" required class="p-2 rounded border dark:bg-gray-700 dark:border-gray-600">
+                        <button type="submit" class="bg-primary text-white px-4 py-2 rounded">Создать</button>
+                    </form>
+                </div>
+                <div class="bg-white dark:bg-darkCard rounded-xl shadow overflow-hidden">
+                    <table class="w-full text-left">
+                        <thead class="bg-gray-100 dark:bg-gray-700"><tr><th class="p-4">Логин</th><th class="p-4">Роль</th><th class="p-4 text-right">Действия</th></tr></thead>
+                        <tbody class="divide-y dark:divide-gray-700">
+                            ${db.users.map(u => `
+                                <tr>
+                                    <td class="p-4">${u.username}</td>
+                                    <td class="p-4"><span class="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs">${u.role}</span></td>
+                                    <td class="p-4 text-right">
+                                        ${u.username !== 'admin' ? `<button onclick="confirmAction('Удалить пользователя?', 'Пользователь потеряет доступ.', () => deleteUser(${u.id}))" class="text-red-600"><i class="fas fa-trash"></i></button>` : ''}
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        function renderLogs(container) {
+            if (currentUser.role !== 'admin') return;
+            container.innerHTML = `
+                <h2 class="text-2xl font-bold mb-6">Журнал событий (Audit Log)</h2>
+                <div class="bg-white dark:bg-darkCard rounded-xl shadow overflow-hidden">
+                    <div class="overflow-x-auto max-h-[600px] overflow-y-auto">
+                        <table class="w-full text-left text-sm">
+                            <thead class="bg-gray-100 dark:bg-gray-700 sticky top-0">
+                                <tr>
+                                    <th class="p-4">Время</th>
+                                    <th class="p-4">Пользователь</th>
+                                    <th class="p-4">Действие</th>
+                                    <th class="p-4">Детали</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y dark:divide-gray-700">
+                                ${db.logs.map(l => `
+                                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-800">
+                                        <td class="p-4 font-mono text-xs text-gray-500">${new Date(l.date).toLocaleString()}</td>
+                                        <td class="p-4 font-bold">${l.user}</td>
+                                        <td class="p-4 text-primary">${l.action}</td>
+                                        <td class="p-4 text-gray-600 dark:text-gray-400">${l.details}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- ЛОГИКА РАБОТЫ ---
+
+        function openPaymentModal(id = null) {
+            const modal = document.getElementById('paymentModal');
+            const form = document.getElementById('paymentForm');
+            const title = document.getElementById('paymentModalTitle');
+            const typeSelect = document.getElementById('payType');
+            
+            // Заполняем типы
+            typeSelect.innerHTML = db.settings.paymentTypes.map(t => `<option value="${t}">${t}</option>`).join('');
+
+            if (id) {
+                const p = db.payments.find(x => x.id === id);
+                title.textContent = 'Редактировать платеж';
+                document.getElementById('payId').value = p.id;
+                document.getElementById('payBank').value = p.bank;
+                document.getElementById('payType').value = p.type;
+                document.getElementById('payAmount').value = p.amount;
+                document.getElementById('payDate').value = p.date;
+                document.getElementById('payComment').value = p.comment || '';
+            } else {
+                title.textContent = 'Новый платеж';
+                form.reset();
+                document.getElementById('payId').value = '';
+                document.getElementById('payDate').valueAsDate = new Date();
+            }
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        document.getElementById('paymentForm').addEventListener('submit', (e) => {
             e.preventDefault();
-            const id = document.getElementById('editPaymentId').value;
+            const id = document.getElementById('payId').value;
             const bank = document.getElementById('payBank').value;
             const type = document.getElementById('payType').value;
             const amount = parseFloat(document.getElementById('payAmount').value);
@@ -614,526 +712,254 @@
 
             if (id) {
                 // Edit
-                const idx = appData.payments.findIndex(p => p.id == id);
-                if(idx > -1) {
-                    const oldVal = JSON.stringify(appData.payments[idx]);
-                    appData.payments[idx] = { ...appData.payments[idx], bank, type, amount, date, comment };
-                    addLog('Редактирование платежа', `Изменен платеж ${bank} на сумму ${amount}`);
+                const idx = db.payments.findIndex(p => p.id == id);
+                if (idx !== -1) {
+                    const oldVal = JSON.stringify(db.payments[idx]);
+                    db.payments[idx] = { ...db.payments[idx], bank, type, amount, date, comment };
+                    logEvent('Редактирование платежа', `ID: ${id}. Было: ${oldVal}, Стало: Банк=${bank}, Сумма=${amount}`);
                 }
             } else {
                 // Create
-                const newPay = {
-                    id: Date.now(),
-                    bank, type, amount, date, comment,
-                    createdBy: appData.currentUser.login,
-                    createdAt: new Date().toISOString()
-                };
-                appData.payments.push(newPay);
-                addLog('Создание платежа', `Добавлен платеж ${bank} (${type}) на сумму ${amount}`);
+                const newId = Date.now();
+                db.payments.push({ id: newId, bank, type, amount, date, comment, archived: false, createdBy: currentUser.username });
+                logEvent('Создание платежа', `ID: ${newId}, Банк: ${bank}, Сумма: ${amount}`);
             }
             saveData();
             closeModal('paymentModal');
+            router('payments');
+        });
+
+        function markAsPaid(id) {
+            const p = db.payments.find(x => x.id === id);
+            if (p) {
+                p.archived = true;
+                logEvent('Оплата платежа', `ID: ${id}, Банк: ${p.bank}, Сумма: ${p.amount}`);
+                saveData();
+                router('payments');
+                showToast('Платеж успешно оплачен!', 'success');
+            }
         }
 
-        function editPayment(id) {
-            const p = appData.payments.find(x => x.id == id);
-            if(!p) return;
-            openModal('paymentModal');
-            document.getElementById('editPaymentId').value = p.id;
-            document.getElementById('modalTitle').innerText = 'Редактировать платеж';
-            document.getElementById('payBank').value = p.bank;
-            document.getElementById('payType').value = p.type;
-            document.getElementById('payAmount').value = p.amount;
-            document.getElementById('payDate').value = p.date;
-            document.getElementById('payComment').value = p.comment;
-            populateTypesSelect();
-        }
-
-        function payNow(id) {
-            confirmAction('payNow', 'Переместить этот платеж в архив (оплачено)?', () => {
-                const idx = appData.payments.findIndex(p => p.id == id);
-                if(idx > -1) {
-                    const p = appData.payments[idx];
-                    p.paidAt = new Date().toISOString();
-                    appData.archive.unshift(p);
-                    appData.payments.splice(idx, 1);
-                    addLog('Оплата подтверждена', `Платеж ${p.bank} на сумму ${p.amount} оплачен пользователем ${appData.currentUser.login}`);
-                    saveData();
-                }
-            });
+        function restorePayment(id) {
+            const p = db.payments.find(x => x.id === id);
+            if (p) {
+                p.archived = false;
+                logEvent('Возврат платежа из архива', `ID: ${id}`);
+                saveData();
+                router('archive');
+                showToast('Платеж восстановлен', 'success');
+            }
         }
 
         function deletePayment(id) {
-            confirmAction('deletePayment', 'Удалить этот платеж безвозвратно?', () => {
-                const idx = appData.payments.findIndex(p => p.id == id);
-                if(idx > -1) {
-                    const p = appData.payments[idx];
-                    appData.payments.splice(idx, 1);
-                    addLog('Удаление платежа', `Удален активный платеж ${p.bank} на сумму ${p.amount}`);
-                    saveData();
-                }
-            });
+            const idx = db.payments.findIndex(p => p.id === id);
+            if (idx !== -1) {
+                const p = db.payments[idx];
+                db.payments.splice(idx, 1);
+                logEvent('Удаление платежа', `ID: ${id}, Банк: ${p.bank}`);
+                saveData();
+                // Перерисовать текущую страницу
+                const page = document.getElementById('pageContent');
+                if (page.innerHTML.includes('Архив')) renderArchive(page);
+                else renderPayments(page);
+                showToast('Платеж удален', 'danger');
+            }
         }
 
-        // --- ARCHIVE ---
-        function restorePayment(id) {
-            confirmAction('restore', 'Вернуть платеж в активные?', () => {
-                const idx = appData.archive.findIndex(p => p.id == id);
-                if(idx > -1) {
-                    const p = appData.archive[idx];
-                    delete p.paidAt;
-                    appData.payments.push(p);
-                    appData.archive.splice(idx, 1);
-                    addLog('Восстановление из архива', `Платеж ${p.bank} возвращен в активные`);
-                    saveData();
-                }
-            });
-        }
+        // --- ПОЛЬЗОВАТЕЛИ И НАСТРОЙКИ ---
 
-        function deleteArchived(id) {
-            confirmAction('deleteArchived', 'Удалить запись из архива?', () => {
-                const idx = appData.archive.findIndex(p => p.id == id);
-                if(idx > -1) {
-                    const p = appData.archive[idx];
-                    appData.archive.splice(idx, 1);
-                    addLog('Удаление из архива', `Удалена запись архива ${p.bank}`);
-                    saveData();
-                }
-            });
-        }
-
-        function clearArchive() {
-            appData.archive = [];
-            addLog('Очистка архива', 'Весь архив очищен');
+        function createUser(e) {
+            e.preventDefault();
+            const form = e.target;
+            const username = form.username.value;
+            const password = form.password.value;
+            
+            if (db.users.find(u => u.username === username)) {
+                alert('Такой пользователь уже есть');
+                return;
+            }
+            
+            db.users.push({ id: Date.now(), username, password, role: 'user' });
+            logEvent('Создание пользователя', `Логин: ${username}`);
             saveData();
-        }
-
-        // --- SETTINGS & TYPES ---
-        function addPaymentType() {
-            const val = document.getElementById('newPaymentType').value.trim();
-            if(val && !appData.settings.paymentTypes.includes(val)) {
-                appData.settings.paymentTypes.push(val);
-                addLog('Добавлен тип платежа', val);
-                saveData();
-                document.getElementById('newPaymentType').value = '';
-            }
-        }
-
-        function removePaymentType(type) {
-            confirmAction('delType', `Удалить тип "${type}"?`, () => {
-                appData.settings.paymentTypes = appData.settings.paymentTypes.filter(t => t !== type);
-                addLog('Удален тип платежа', type);
-                saveData();
-            });
-        }
-
-        function addUser() {
-            const l = document.getElementById('newUserLogin').value;
-            const p = document.getElementById('newUserPass').value;
-            if(l && p) {
-                if(appData.users.find(u => u.login === l)) {
-                    alert('Такой логин уже есть');
-                    return;
-                }
-                appData.users.push({id: Date.now(), login: l, password: p, name: l, role: 'user'});
-                addLog('Создан пользователь', l);
-                saveData();
-                document.getElementById('newUserLogin').value = '';
-                document.getElementById('newUserPass').value = '';
-            }
+            renderUsers(document.getElementById('pageContent'));
+            form.reset();
         }
 
         function deleteUser(id) {
-            if(id === 1) { alert('Нельзя удалить главного админа'); return; }
-            confirmAction('delUser', 'Удалить этого пользователя?', () => {
-                appData.users = appData.users.filter(u => u.id !== id);
-                addLog('Удален пользователь', `ID: ${id}`);
+            const idx = db.users.findIndex(u => u.id === id);
+            if (idx !== -1) {
+                const u = db.users[idx];
+                db.users.splice(idx, 1);
+                logEvent('Удаление пользователя', `Логин: ${u.username}`);
                 saveData();
-            });
-        }
-
-        function updateProfile() {
-            const name = document.getElementById('settingName').value;
-            if(name) {
-                appData.currentUser.name = name;
-                const idx = appData.users.findIndex(u => u.id === appData.currentUser.id);
-                appData.users[idx].name = name;
-                addLog('Изменение профиля', `Имя изменено на ${name}`);
-                saveData();
-                alert('Имя сохранено');
+                renderUsers(document.getElementById('pageContent'));
             }
         }
 
         function changePassword() {
-            const p = document.getElementById('settingNewPass').value;
-            if(p) {
-                const idx = appData.users.findIndex(u => u.id === appData.currentUser.id);
-                appData.users[idx].password = p;
-                addLog('Смена пароля', 'Пароль успешно изменен');
+            const newPass = document.getElementById('newPassword').value;
+            if (!newPass) return alert('Введите пароль');
+            
+            const idx = db.users.findIndex(u => u.username === currentUser.username);
+            db.users[idx].password = newPass;
+            logEvent('Смена пароля', `Пользователь: ${currentUser.username}`);
+            saveData();
+            alert('Пароль изменен');
+            document.getElementById('newPassword').value = '';
+        }
+
+        function addPaymentType() {
+            const input = document.getElementById('newTypeInput');
+            const val = input.value.trim();
+            if (val && !db.settings.paymentTypes.includes(val)) {
+                db.settings.paymentTypes.push(val);
+                logEvent('Добавление типа платежа', val);
                 saveData();
-                document.getElementById('settingNewPass').value = '';
-                alert('Пароль изменен');
+                renderSettings(document.getElementById('pageContent'));
+            }
+            input.value = '';
+        }
+
+        function removePaymentType(type) {
+            if (confirm(`Удалить тип "${type}"?`)) {
+                db.settings.paymentTypes = db.settings.paymentTypes.filter(t => t !== type);
+                logEvent('Удаление типа платежа', type);
+                saveData();
+                renderSettings(document.getElementById('pageContent'));
             }
         }
 
         function saveNotificationSettings() {
-            appData.settings.notifyTime = document.getElementById('notifTime').value;
-            appData.settings.notifyDaysBefore = parseInt(document.getElementById('notifDaysBefore').value);
-            addLog('Настройка уведомлений', `Время: ${appData.settings.notifyTime}, Дней: ${appData.settings.notifyDaysBefore}`);
+            const time = document.getElementById('notifyTime').value;
+            const days = parseInt(document.getElementById('notifyDays').value);
+            
+            db.settings.notifyTime = time;
+            db.settings.notifyDaysBefore = days;
+            logEvent('Изменение настроек уведомлений', `Время: ${time}, Дней: ${days}`);
             saveData();
-            alert('Настройки уведомлений сохранены');
+            showToast('Настройки сохранены', 'success');
         }
 
         function testNotification() {
-            if ("Notification" in window) {
-                Notification.requestPermission().then(permission => {
-                    if (permission === "granted") {
-                        new Notification("Тест уведомления PayTracker", {
-                            body: "Это тестовое уведомление. Звук включен.",
-                            icon: "https://cdn-icons-png.flaticon.com/512/2921/2921226.png"
-                        });
-                        playSound();
-                    } else {
-                        alert("Разрешите уведомления в браузере!");
-                    }
+            showBrowserNotification("Тест уведомления PayMEMO", "Это пробное уведомление. Система работает!");
+        }
+
+        // --- УВЕДОМЛЕНИЯ ---
+        function requestNotificationPermission() {
+            if ("Notification" in window && Notification.permission !== "granted") {
+                Notification.requestPermission();
+            }
+        }
+
+        function showBrowserNotification(title, body) {
+            requestNotificationPermission();
+            if ("Notification" in window && Notification.permission === "granted") {
+                new Notification(title, {
+                    body: body,
+                    icon: 'https://cdn-icons-png.flaticon.com/512/2921/2921226.png' // Иконка денег
                 });
             } else {
-                alert("Ваш браузер не поддерживает уведомления");
+                showToast(`${title}: ${body}`, 'info');
             }
         }
 
-        function playSound() {
-            const audio = new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg');
-            audio.play().catch(e => console.log('Audio play failed interaction needed'));
+        function startNotificationCheck() {
+            // Проверяем раз в минуту
+            setInterval(() => {
+                const now = new Date();
+                const currentTime = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+                
+                if (currentTime === db.settings.notifyTime) {
+                    const daysThreshold = db.settings.notifyDaysBefore;
+                    const limitDate = new Date();
+                    limitDate.setDate(limitDate.getDate() + daysThreshold);
+                    
+                    const upcoming = db.payments.filter(p => {
+                        if (p.archived) return false;
+                        const d = new Date(p.date);
+                        // Условие: дата платежа <= (сегодня + N дней) И дата платежа >= сегодня
+                        // Или точно сегодня
+                        return d >= new Date().setHours(0,0,0,0) && d <= limitDate.setHours(23,59,59,999);
+                    });
+
+                    if (upcoming.length > 0) {
+                        showBrowserNotification(`Напоминание о платежах (${upcoming.length})`, `Сумма к оплате: ${upcoming.reduce((s,p)=>s+parseFloat(p.amount),0).toLocaleString()} ₽`);
+                    }
+                }
+            }, 60000);
         }
 
-        // --- LOGS ---
-        function renderLogs() {
-            const tbody = document.getElementById('logsTableBody');
-            tbody.innerHTML = '';
-            appData.logs.forEach(log => {
-                const tr = `<tr class="hover:bg-gray-50 dark:hover:bg-gray-800">
-                    <td class="p-4 whitespace-nowrap text-gray-500">${log.timestamp}</td>
-                    <td class="p-4 font-medium">${log.user}</td>
-                    <td class="p-4 text-primary">${log.action}</td>
-                    <td class="p-4 text-gray-600 dark:text-gray-400">${log.details}</td>
-                </tr>`;
-                tbody.innerHTML += tr;
-            });
-        }
-
-        function clearLogs() {
-            appData.logs = [];
-            saveData();
-        }
-
-        // --- DASHBOARD & ANALYTICS ---
-        let statusChartInst = null;
-        let bankChartInst = null;
-        let trendChartInst = null;
-        let structChartInst = null;
-
-        function renderDashboard() {
-            const now = new Date();
-            const currentMonth = now.getMonth();
-            const currentYear = now.getFullYear();
-
-            // Filter logic
-            const monthPayments = appData.payments.filter(p => {
-                const d = new Date(p.date);
-                return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
-            });
-            
-            const totalMonth = monthPayments.reduce((sum, p) => sum + p.amount, 0);
-            
-            const overdue = appData.payments.filter(p => new Date(p.date) < now);
-            const upcoming = appData.payments.filter(p => {
-                const d = new Date(p.date);
-                const diffTime = d - now;
-                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                return diffDays >= 0 && diffDays <= appData.settings.notifyDaysBefore;
-            });
-
-            const paidThisMonth = appData.archive.filter(p => {
-                const d = new Date(p.paidAt);
-                return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
-            }).reduce((sum, p) => sum + p.amount, 0);
-
-            document.getElementById('dashMonthTotal').innerText = totalMonth.toLocaleString() + ' ₽';
-            document.getElementById('dashOverdueCount').innerText = overdue.length;
-            document.getElementById('dashUpcomingCount').innerText = upcoming.length;
-            document.getElementById('dashPaidMonth').innerText = paidThisMonth.toLocaleString() + ' ₽';
-
-            // Table
-            const tbl = document.getElementById('dashUpcomingTable');
-            tbl.innerHTML = '';
-            upcoming.sort((a,b) => new Date(a.date) - new Date(b.date)).slice(0, 5).forEach(p => {
-                tbl.innerHTML += `
-                    <tr class="border-b dark:border-gray-700 last:border-0">
-                        <td class="py-3 font-medium">${p.bank}</td>
-                        <td class="py-3 text-gray-500">${p.type}</td>
-                        <td class="py-3 text-warning">${new Date(p.date).toLocaleDateString()}</td>
-                        <td class="py-3 text-right font-bold">${p.amount.toLocaleString()} ₽</td>
-                        <td class="py-3 text-center">
-                            <button onclick="payNow(${p.id})" class="text-xs bg-success text-white px-2 py-1 rounded hover:bg-green-600">Оплатить</button>
-                        </td>
-                    </tr>
-                `;
-            });
-
-            renderCharts();
-        }
-
-        function renderCharts() {
-            // Status Chart
-            const ctx1 = document.getElementById('statusChart').getContext('2d');
-            const activeCount = appData.payments.length;
-            const archiveCount = appData.archive.length;
-            
-            if(statusChartInst) statusChartInst.destroy();
-            statusChartInst = new Chart(ctx1, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Активные', 'Оплаченные (Архив)'],
-                    datasets: [{
-                         [activeCount, archiveCount],
-                        backgroundColor: ['#3b82f6', '#10b981']
-                    }]
-                },
-                options: { responsive: true, maintainAspectRatio: false }
-            });
-
-            // Bank Chart
-            const banks = {};
-            appData.payments.forEach(p => {
-                banks[p.bank] = (banks[p.bank] || 0) + p.amount;
-            });
-            const ctx2 = document.getElementById('bankChart').getContext('2d');
-            if(bankChartInst) bankChartInst.destroy();
-            bankChartInst = new Chart(ctx2, {
-                type: 'bar',
-                 {
-                    labels: Object.keys(banks),
-                    datasets: [{
-                        label: 'Сумма к оплате',
-                        data: Object.values(banks),
-                        backgroundColor: '#64748b'
-                    }]
-                },
-                options: { responsive: true, maintainAspectRatio: false }
-            });
-        }
-
-        function renderAnalytics() {
-            const bankFilter = document.getElementById('analyticBankFilter').value;
-            const typeFilter = document.getElementById('analyticTypeFilter').value;
-
-            // Populate Filters if empty
-            if(document.getElementById('analyticBankFilter').options.length === 1) {
-                const banks = [...new Set([...appData.payments, ...appData.archive].map(p => p.bank))];
-                banks.forEach(b => {
-                    const opt = document.createElement('option');
-                    opt.value = b; opt.innerText = b;
-                    document.getElementById('analyticBankFilter').appendChild(opt);
-                });
-            }
-            if(document.getElementById('analyticTypeFilter').options.length === 1) {
-                 const types = [...new Set([...appData.payments, ...appData.archive].map(p => p.type))];
-                 types.forEach(t => {
-                    const opt = document.createElement('option');
-                    opt.value = t; opt.innerText = t;
-                    document.getElementById('analyticTypeFilter').appendChild(opt);
-                });
-            }
-
-            // Filter Data
-            let data = [...appData.payments, ...appData.archive];
-            if(bankFilter !== 'all') data = data.filter(p => p.bank === bankFilter);
-            if(typeFilter !== 'all') data = data.filter(p => p.type === typeFilter);
-
-            // Trend by Month (Last 6 months)
-            const months = {};
-            data.forEach(p => {
-                const d = new Date(p.date); // Or paidAt for archive? Let's use date for consistency or paidAt for archive
-                const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
-                months[key] = (months[key] || 0) + p.amount;
-            });
-            const sortedMonths = Object.keys(months).sort().slice(-6);
-            
-            const ctxTrend = document.getElementById('analyticsTrendChart').getContext('2d');
-            if(trendChartInst) trendChartInst.destroy();
-            trendChartInst = new Chart(ctxTrend, {
-                type: 'line',
-                 {
-                    labels: sortedMonths,
-                    datasets: [{
-                        label: 'Расходы по месяцам',
-                        data: sortedMonths.map(m => months[m]),
-                        borderColor: '#3b82f6',
-                        tension: 0.3,
-                        fill: true,
-                        backgroundColor: 'rgba(59, 130, 246, 0.1)'
-                    }]
-                },
-                options: { responsive: true, maintainAspectRatio: false }
-            });
-
-            // Structure by Type
-            const types = {};
-            data.forEach(p => {
-                types[p.type] = (types[p.type] || 0) + p.amount;
-            });
-            const ctxStruct = document.getElementById('analyticsStructureChart').getContext('2d');
-            if(structChartInst) structChartInst.destroy();
-            structChartInst = new Chart(ctxStruct, {
-                type: 'pie',
-                 {
-                    labels: Object.keys(types),
-                    datasets: [{
-                         Object.values(types),
-                        backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#64748b', '#8b5cf6']
-                    }]
-                },
-                options: { responsive: true, maintainAspectRatio: false }
-            });
-        }
-
-        function renderPayments() {
-            const tbody = document.getElementById('paymentsTableBody');
-            tbody.innerHTML = '';
-            appData.payments.sort((a,b) => new Date(a.date) - new Date(b.date)).forEach(p => {
-                const isOverdue = new Date(p.date) < new Date();
-                const rowClass = isOverdue ? 'bg-red-50 dark:bg-red-900/20' : '';
-                tbody.innerHTML += `
-                    <tr class="${rowClass} hover:bg-gray-50 dark:hover:bg-gray-800 transition">
-                        <td class="p-4 font-bold">${p.bank}</td>
-                        <td class="p-4"><span class="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded text-xs">${p.type}</span></td>
-                        <td class="p-4 ${isOverdue ? 'text-danger font-bold' : ''}">${new Date(p.date).toLocaleDateString()}</td>
-                        <td class="p-4 font-mono">${p.amount.toLocaleString()} ₽</td>
-                        <td class="p-4 text-gray-500 text-xs truncate max-w-xs">${p.comment || '-'}</td>
-                        <td class="p-4 text-center">
-                            <div class="flex justify-center gap-2">
-                                <button onclick="payNow(${p.id})" title="Оплатить" class="text-success hover:text-green-700"><i class="fas fa-check-circle text-xl"></i></button>
-                                <button onclick="editPayment(${p.id})" title="Изменить" class="text-primary hover:text-blue-700"><i class="fas fa-edit text-xl"></i></button>
-                                <button onclick="deletePayment(${p.id})" title="Удалить" class="text-danger hover:text-red-700"><i class="fas fa-trash-alt text-xl"></i></button>
-                            </div>
-                        </td>
-                    </tr>
-                `;
-            });
-        }
-
-        function renderArchive() {
-            const tbody = document.getElementById('archiveTableBody');
-            tbody.innerHTML = '';
-            appData.archive.forEach(p => {
-                tbody.innerHTML += `
-                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-800 transition opacity-75">
-                        <td class="p-4 font-bold text-gray-500">${p.bank}</td>
-                        <td class="p-4 text-gray-500">${p.type}</td>
-                        <td class="p-4 text-success">${new Date(p.paidAt).toLocaleDateString()}</td>
-                        <td class="p-4 font-mono text-gray-500">${p.amount.toLocaleString()} ₽</td>
-                        <td class="p-4 text-center">
-                            <div class="flex justify-center gap-2">
-                                <button onclick="restorePayment(${p.id})" title="Вернуть" class="text-warning hover:text-yellow-600"><i class="fas fa-undo text-xl"></i></button>
-                                <button onclick="deleteArchived(${p.id})" title="Удалить навсегда" class="text-danger hover:text-red-700"><i class="fas fa-trash-alt text-xl"></i></button>
-                            </div>
-                        </td>
-                    </tr>
-                `;
-            });
-        }
-
-        function renderSettings() {
-            document.getElementById('settingName').value = appData.currentUser.name;
-            document.getElementById('notifTime').value = appData.settings.notifyTime;
-            document.getElementById('notifDaysBefore').value = appData.settings.notifyDaysBefore;
-            
-            // Types
-            const typesDiv = document.getElementById('typesList');
-            typesDiv.innerHTML = '';
-            appData.settings.paymentTypes.forEach(t => {
-                typesDiv.innerHTML += `
-                    <span class="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-3 py-1 rounded-full text-sm flex items-center gap-2">
-                        ${t} <button onclick="removePaymentType('${t}')" class="hover:text-red-500"><i class="fas fa-times"></i></button>
-                    </span>
-                `;
-            });
-
-            // Users
-            const usersList = document.getElementById('usersList');
-            usersList.innerHTML = '';
-            appData.users.forEach(u => {
-                usersList.innerHTML += `
-                    <li class="flex justify-between items-center bg-gray-50 dark:bg-gray-800 p-2 rounded">
-                        <span><b>${u.login}</b> (${u.name}) - ${u.role === 'admin' ? 'Админ' : 'Юзер'}</span>
-                        ${u.id !== 1 ? `<button onclick="deleteUser(${u.id})" class="text-danger text-xs hover:underline">Удалить</button>` : ''}
-                    </li>
-                `;
-            });
-        }
-
-        // --- EXCEL IMPORT/EXPORT ---
+        // --- ЭКСЕЛЬ ---
         function downloadTemplate() {
+            const ws = XLSX.utils.json_to_sheet([
+                { "Банк": "Сбербанк", "Тип": "Ипотека", "Сумма": 50000, "Дата": "2023-10-25", "Комментарий": "Ежемесячный" },
+                { "Банк": "Тинькофф", "Тип": "Кредитная карта", "Сумма": 15000, "Дата": "2023-10-28", "Комментарий": "" }
+            ]);
             const wb = XLSX.utils.book_new();
-            const ws_data = [
-                ["Банк", "Тип", "Сумма", "Дата", "Комментарий"],
-                ["Сбербанк", "Ипотека", 50000, "2023-10-20", "Основной платеж"],
-                ["Тинькофф", "Кредитная карта", 15000, "2023-10-25", ""]
-            ];
-            const ws = XLSX.utils.aoa_to_sheet(ws_data);
             XLSX.utils.book_append_sheet(wb, ws, "Шаблон");
             XLSX.writeFile(wb, "Shablon_Platezhey.xlsx");
         }
 
-        function importExcel(input) {
+        function handleExcelImport(input) {
             const file = input.files[0];
-            if(!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const data = new Uint8Array(e.target.result);
-                const workbook = XLSX.read(data, {type: 'array'});
-                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-                const json = XLSX.utils.sheet_to_json(firstSheet);
-                
-                let count = 0;
-                json.forEach(row => {
-                    if(row['Банк'] && row['Сумма'] && row['Дата']) {
-                        // Simple date fix if excel sends number
-                        let dateVal = row['Дата'];
-                        if(typeof dateVal === 'number') {
-                            const excelDate = new Date(Math.round((dateVal - 25569)*86400*1000));
-                            dateVal = excelDate.toISOString().split('T')[0];
+            if (!file) return;
+            
+            confirmAction('Импортировать данные?', 'Все строки из файла будут добавлены в список платежей.', () => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const json = XLSX.utils.sheet_to_json(sheet);
+                    
+                    let count = 0;
+                    json.forEach(row => {
+                        if (row['Банк'] && row['Сумма'] && row['Дата']) {
+                            // Конвертация даты Excel если нужно, но sheet_to_json обычно справляется
+                            let dateStr = row['Дата'];
+                            if (typeof dateStr === 'number') {
+                                // Простая конвертация serial date
+                                const dateObj = new Date(Math.round((dateStr - 25569)*86400*1000));
+                                dateStr = dateObj.toISOString().split('T')[0];
+                            }
+                            
+                            db.payments.push({
+                                id: Date.now() + Math.random(),
+                                bank: row['Банк'],
+                                type: row['Тип'] || 'Прочее',
+                                amount: parseFloat(row['Сумма']),
+                                date: dateStr,
+                                comment: row['Комментарий'] || '',
+                                archived: false,
+                                createdBy: currentUser.username
+                            });
+                            count++;
                         }
-                        
-                        appData.payments.push({
-                            id: Date.now() + Math.random(),
-                            bank: row['Банк'],
-                            type: row['Тип'] || 'Прочее',
-                            amount: parseFloat(row['Сумма']),
-                            date: dateVal,
-                            comment: row['Комментарий'] || '',
-                            createdBy: appData.currentUser.login,
-                            createdAt: new Date().toISOString()
-                        });
-                        count++;
-                    }
-                });
-                addLog('Импорт из Excel', `Успешно импортировано ${count} платежей`);
-                saveData();
-                alert(`Импортировано платежей: ${count}`);
-                input.value = ''; // reset
-            };
-            reader.readAsArrayBuffer(file);
+                    });
+                    
+                    logEvent('Импорт из Excel', `Загружено ${count} платежей`);
+                    saveData();
+                    router('payments');
+                    showToast(`Успешно загружено ${count} платежей`, 'success');
+                };
+                reader.readAsArrayBuffer(file);
+            });
+            input.value = ''; // Сброс
         }
 
-        // --- CONFIRMATION MODAL SYSTEM ---
-        let confirmCallback = null;
-        function confirmAction(actionId, message, callback) {
-            document.getElementById('confirmMessage').innerText = message;
-            const btn = document.getElementById('confirmBtn');
+        // --- UI HELPERS ---
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+            document.getElementById(id).classList.remove('flex');
+        }
+
+        function confirmAction(title, message, callback) {
+            document.getElementById('confirmTitle').textContent = title;
+            document.getElementById('confirmMessage').textContent = message;
+            const btn = document.getElementById('confirmActionBtn');
             
-            // Remove old listeners to prevent double firing
+            // Клонируем кнопку чтобы убрать старые слушатели
             const newBtn = btn.cloneNode(true);
             btn.parentNode.replaceChild(newBtn, btn);
             
@@ -1142,52 +968,63 @@
                 closeModal('confirmModal');
             });
             
-            openModal('confirmModal');
+            const modal = document.getElementById('confirmModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
         }
 
-        // --- THEME TOGGLE (Auto detect or manual could be added, now just light/dark class logic) ---
-        function applyTheme() {
-            if(appData.theme === 'dark') {
-                document.documentElement.classList.add('dark');
-            } else {
-                document.documentElement.classList.remove('dark');
-            }
-        }
-        
-        // Initial check for theme before login if persisted
-        const savedTheme = localStorage.getItem('payTrackerTheme');
-        if(savedTheme) {
-            if(savedTheme === 'dark') document.documentElement.classList.add('dark');
-        } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            document.documentElement.classList.add('dark');
-        }
-
-        // Check notifications periodically (simple simulation)
-        setInterval(() => {
-            if(!appData.currentUser) return;
-            const now = new Date();
-            const timeStr = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+        function showToast(msg, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const div = document.createElement('div');
+            const colors = {
+                success: 'bg-green-500',
+                error: 'bg-red-500',
+                danger: 'bg-red-500',
+                info: 'bg-blue-500'
+            };
+            div.className = `${colors[type] || colors.info} text-white px-6 py-3 rounded-lg shadow-lg transform transition-all duration-300 translate-x-full`;
+            div.textContent = msg;
+            container.appendChild(div);
             
-            if(timeStr === appData.settings.notifyTime) {
-                // Check for upcoming
-                const limit = appData.settings.notifyDaysBefore;
-                const soon = appData.payments.filter(p => {
-                    const d = new Date(p.date);
-                    const diff = Math.ceil((d - now) / (1000*60*60*24));
-                    return diff >= 0 && diff <= limit;
-                });
-                
-                if(soon.length > 0) {
-                    if ("Notification" in window && Notification.permission === "granted") {
-                        new Notification(`Напоминание: ${soon.length} платежей`, {
-                            body: `Ближайший: ${soon[0].bank} - ${soon[0].amount}₽`,
-                            icon: "https://cdn-icons-png.flaticon.com/512/2921/2921226.png"
-                        });
-                        playSound();
-                    }
+            setTimeout(() => div.classList.remove('translate-x-full'), 100);
+            setTimeout(() => {
+                div.classList.add('opacity-0');
+                setTimeout(() => div.remove(), 300);
+            }, 3000);
+        }
+
+        function setupEventListeners() {
+            // Мобильное меню
+            const menuBtn = document.getElementById('mobileMenuBtn');
+            const sidebar = document.getElementById('sidebar');
+            
+            menuBtn.addEventListener('click', () => {
+                sidebar.classList.toggle('-translate-x-full');
+            });
+            
+            // Закрытие меню при клике вне его (на мобильных)
+            document.addEventListener('click', (e) => {
+                if (window.innerWidth < 768 && 
+                    !sidebar.contains(e.target) && 
+                    !menuBtn.contains(e.target) &&
+                    !sidebar.classList.contains('-translate-x-full')) {
+                    sidebar.classList.add('-translate-x-full');
                 }
+            });
+
+            // Тема
+            if (db.settings.theme === 'dark') {
+                document.documentElement.classList.add('dark');
             }
-        }, 60000); // Check every minute
+        }
+
+        function applyTheme(theme) {
+            if (theme === 'dark') document.documentElement.classList.add('dark');
+            else document.documentElement.classList.remove('dark');
+        }
+
+        // Запуск
+        init();
 
     </script>
 </body>
