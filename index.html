@@ -197,11 +197,13 @@
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         <div class="lg:col-span-2 bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm">
                             <h3 class="font-bold text-lg mb-4">Динамика платежей</h3>
-                            <canvas id="mainChart" height="150"></canvas>
+                            <div class="relative h-48">
+                                <canvas id="mainChart"></canvas>
+                            </div>
                         </div>
                         <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm">
                             <h3 class="font-bold text-lg mb-4">Структура по типам</h3>
-                            <div class="relative h-64">
+                            <div class="relative h-48">
                                 <canvas id="typeChart"></canvas>
                             </div>
                         </div>
@@ -383,18 +385,30 @@
                         <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm">
                             <h3 class="font-bold text-lg mb-4 flex items-center"><i class="fas fa-bell mr-2 text-warning"></i> Уведомления</h3>
                             <div class="space-y-4">
-                                <div>
-                                    <label class="block text-sm mb-1">Проверять каждые (мин)</label>
-                                    <input type="number" id="notifInterval" class="w-full px-3 py-2 rounded border dark:border-gray-600 bg-transparent" value="60">
+                                <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                                    <span class="text-sm font-medium">Системные уведомления</span>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" id="notifEnabled" class="sr-only peer" onchange="requestNotificationPermission()">
+                                        <div class="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                                    </label>
                                 </div>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">Включите для получения push-уведомлений в системе (Windows/Android)</p>
+                                
                                 <div>
-                                    <label class="block text-sm mb-1">Предупреждать за (дней)</label>
-                                    <input type="number" id="notifDaysBefore" class="w-full px-3 py-2 rounded border dark:border-gray-600 bg-transparent" value="3">
+                                    <label class="block text-sm mb-1">Уведомлять за (дней до платежа)</label>
+                                    <input type="number" id="notifDaysBefore" class="w-full px-3 py-2 rounded border dark:border-gray-600 bg-transparent" value="3" min="0" max="30">
                                 </div>
+                                
                                 <div>
-                                    <label class="block text-sm mb-1">Время отправки (ЧЧ:ММ)</label>
-                                    <input type="time" id="notifTime" class="w-full px-3 py-2 rounded border dark:border-gray-600 bg-transparent">
+                                    <label class="block text-sm mb-1">Время уведомления 1 (утро)</label>
+                                    <input type="time" id="notifTime1" class="w-full px-3 py-2 rounded border dark:border-gray-600 bg-transparent" value="09:00">
                                 </div>
+                                
+                                <div>
+                                    <label class="block text-sm mb-1">Время уведомления 2 (вечер)</label>
+                                    <input type="time" id="notifTime2" class="w-full px-3 py-2 rounded border dark:border-gray-600 bg-transparent" value="18:00">
+                                </div>
+                                
                                 <button onclick="testNotification()" class="w-full bg-secondary hover:bg-gray-600 text-white py-2 rounded">Тест уведомления</button>
                             </div>
                         </div>
@@ -528,9 +542,10 @@
             logs: [],
             settings: {
                 types: ['Ипотека', 'Автокредит', 'Кредитная карта', 'Коммуналка', 'Подписка'],
-                notifInterval: 60,
+                notifEnabled: false,
                 notifDaysBefore: 3,
-                notifTime: '09:00'
+                notifTime1: '09:00',
+                notifTime2: '18:00'
             },
             currentUser: null
         };
@@ -564,7 +579,15 @@
                 showLogin();
             }
 
-            setInterval(checkNotifications, 60000); // Check every minute
+            // Request notification permission on first load if enabled
+            if (db.settings.notifEnabled && 'Notification' in window) {
+                if (Notification.permission === 'default') {
+                    Notification.requestPermission();
+                }
+            }
+
+            // Check notifications every 30 seconds
+            setInterval(checkNotifications, 30000);
         }
 
         function saveDB() {
@@ -687,7 +710,12 @@
         function renderPayments() {
             const tbody = document.getElementById('paymentsTableBody');
             tbody.innerHTML = '';
-            const active = db.payments.filter(p => !p.archived);
+            
+            // Фильтрация по пользователю: админ видит все, обычный пользователь только свои
+            let active = db.payments.filter(p => !p.archived);
+            if (db.currentUser && db.currentUser.role !== 'admin') {
+                active = active.filter(p => !p.owner || p.owner === db.currentUser.login);
+            }
             
             if (active.length === 0) {
                 document.getElementById('noPaymentsMsg').classList.remove('hidden');
@@ -717,7 +745,12 @@
         function renderArchive() {
             const tbody = document.getElementById('archiveTableBody');
             tbody.innerHTML = '';
-            const archived = db.payments.filter(p => p.archived);
+            
+            // Фильтрация по пользователю: админ видит все, обычный пользователь только свои
+            let archived = db.payments.filter(p => p.archived);
+            if (db.currentUser && db.currentUser.role !== 'admin') {
+                archived = archived.filter(p => !p.owner || p.owner === db.currentUser.login);
+            }
             
             if (archived.length === 0) {
                 document.getElementById('noArchiveMsg').classList.remove('hidden');
@@ -796,9 +829,10 @@
         }
 
         function renderSettings() {
-            document.getElementById('notifInterval').value = db.settings.notifInterval;
+            document.getElementById('notifEnabled').checked = db.settings.notifEnabled;
             document.getElementById('notifDaysBefore').value = db.settings.notifDaysBefore;
-            document.getElementById('notifTime').value = db.settings.notifTime;
+            document.getElementById('notifTime1').value = db.settings.notifTime1;
+            document.getElementById('notifTime2').value = db.settings.notifTime2;
 
             const list = document.getElementById('typesList');
             list.innerHTML = '';
@@ -811,17 +845,24 @@
                 `;
             });
 
-            // Save listeners
-            ['notifInterval', 'notifDaysBefore', 'notifTime'].forEach(id => {
-                document.getElementById(id).onchange = (e) => {
-                    db.settings[id.replace('notif','').toLowerCase()] = e.target.value; // simple mapping fix needed ideally but works for now
-                    if(id === 'notifInterval') db.settings.notifInterval = e.target.value;
-                    if(id === 'notifDaysBefore') db.settings.notifDaysBefore = e.target.value;
-                    if(id === 'notifTime') db.settings.notifTime = e.target.value;
-                    saveDB();
-                    showToast('Настройки сохранены');
-                };
-            });
+            // Save listeners for notification settings
+            document.getElementById('notifDaysBefore').onchange = (e) => {
+                db.settings.notifDaysBefore = parseInt(e.target.value);
+                saveDB();
+                showToast('Настройки сохранены');
+            };
+            
+            document.getElementById('notifTime1').onchange = (e) => {
+                db.settings.notifTime1 = e.target.value;
+                saveDB();
+                showToast('Настройки сохранены');
+            };
+            
+            document.getElementById('notifTime2').onchange = (e) => {
+                db.settings.notifTime2 = e.target.value;
+                saveDB();
+                showToast('Настройки сохранены');
+            };
         }
 
         function renderLogs() {
@@ -1073,7 +1114,7 @@
             document.getElementById('userPass').placeholder = 'Пароль';
             
             if(id) {
-                const u = db.users.find(x => x.id == id); // loose equality for string/number
+                const u = db.users.find(x => x.id == id);
                 document.getElementById('userId').value = u.id;
                 document.getElementById('userName').value = u.login;
                 document.getElementById('userRole').value = u.role;
@@ -1095,10 +1136,20 @@
 
             if(id) {
                 const u = db.users.find(x => x.id == id);
+                // Проверка: нельзя изменить логин на существующий (кроме своего)
+                if(login !== u.login && db.users.find(user => user.login === login)) {
+                    alert('Такой логин уже занят');
+                    return;
+                }
                 u.login = login;
                 if(pass) u.pass = pass;
                 u.role = role;
                 logEvent('Редактирование пользователя', login);
+                // Если изменили данные текущего пользователя, обновить сессию
+                if(db.currentUser && db.currentUser.id == id) {
+                    db.currentUser = u;
+                    sessionStorage.setItem('paymemo_user', login);
+                }
             } else {
                 if(db.users.find(u => u.login === login)) {
                     alert('Такой логин уже занят');
@@ -1113,6 +1164,18 @@
         });
 
         function deleteUser(id) {
+            // Нельзя удалить последнего админа
+            const adminCount = db.users.filter(u => u.role === 'admin').length;
+            const userToDelete = db.users.find(u => u.id == id);
+            if(userToDelete && userToDelete.role === 'admin' && adminCount <= 1) {
+                alert('Нельзя удалить последнего администратора!');
+                return;
+            }
+            // Нельзя удалить самого себя
+            if(db.currentUser && db.currentUser.id == id) {
+                alert('Нельзя удалить самого себя!');
+                return;
+            }
             db.users = db.users.filter(u => u.id != id);
             logEvent('Удаление пользователя', `ID: ${id}`);
             saveDB();
@@ -1179,27 +1242,98 @@
             reader.readAsArrayBuffer(file);
         }
 
+        function requestNotificationPermission() {
+            if (!('Notification' in window)) {
+                alert('Ваш браузер не поддерживает системные уведомления');
+                return;
+            }
+            
+            const checkbox = document.getElementById('notifEnabled');
+            
+            if (checkbox.checked) {
+                Notification.requestPermission().then(permission => {
+                    db.settings.notifEnabled = (permission === 'granted');
+                    saveDB();
+                    if (permission === 'granted') {
+                        showToast('Уведомления разрешены!');
+                        // Send a test notification
+                        sendSystemNotification('PayMEMO', 'Уведомления успешно включены!');
+                    } else {
+                        checkbox.checked = false;
+                        db.settings.notifEnabled = false;
+                        saveDB();
+                        showToast('Уведомления запрещены');
+                    }
+                });
+            } else {
+                db.settings.notifEnabled = false;
+                saveDB();
+            }
+        }
+
+        function sendSystemNotification(title, body) {
+            if (!db.settings.notifEnabled || !('Notification' in window)) return;
+            
+            if (Notification.permission === 'granted') {
+                new Notification(title, {
+                    body: body,
+                    icon: 'https://cdn-icons-png.flaticon.com/512/2693/2693507.png',
+                    badge: 'https://cdn-icons-png.flaticon.com/512/2693/2693507.png',
+                    tag: 'paymemo-notification',
+                    requireInteraction: false
+                });
+            }
+        }
+
         function testNotification() {
-            showToast('Тест: Платеж "Ипотека" на сумму 50000₽ через 3 дня');
+            if (db.settings.notifEnabled && Notification.permission === 'granted') {
+                sendSystemNotification('PayMEMO - Тест', 'Это тестовое уведомление. Платеж "Ипотека" на сумму 50000₽ через 3 дня');
+            } else {
+                showToast('Сначала включите системные уведомления в настройках');
+            }
         }
 
         function checkNotifications() {
-            // Simple logic: check if any payment is due within settings days
-            const days = parseInt(db.settings.notifDaysBefore);
+            if (!db.settings.notifEnabled || Notification.permission !== 'granted') return;
+            
             const now = new Date();
+            const currentHours = now.getHours();
+            const currentMinutes = now.getMinutes();
+            const currentTime = `${String(currentHours).padStart(2, '0')}:${String(currentMinutes).padStart(2, '0')}`;
+            
+            // Check if current time matches notification times
+            const shouldNotifyNow = (currentTime === db.settings.notifTime1 || currentTime === db.settings.notifTime2);
+            
+            if (!shouldNotifyNow) return;
+            
+            const days = parseInt(db.settings.notifDaysBefore);
             const soon = db.payments.filter(p => {
-                if(p.archived) return false;
+                if (p.archived) return false;
                 const d = new Date(p.date);
                 const diffTime = d - now;
                 const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
                 return diffDays >= 0 && diffDays <= days;
             });
 
-            if(soon.length > 0) {
+            if (soon.length > 0) {
                 const badge = document.getElementById('notifBadge');
                 badge.textContent = soon.length;
                 badge.classList.remove('hidden');
-                // In real app, send push notification here
+                
+                // Send system notifications for each upcoming payment
+                soon.forEach(p => {
+                    const d = new Date(p.date);
+                    const diffDays = Math.ceil((d - now) / (1000 * 60 * 60 * 24));
+                    let msg = `Платеж "${p.type}" (${p.bank}) на сумму ${formatMoney(p.amount)}`;
+                    if (diffDays === 0) {
+                        msg += ' — СЕГОДНЯ!';
+                    } else if (diffDays === 1) {
+                        msg += ' — завтра';
+                    } else {
+                        msg += ` — через ${diffDays} дн.`;
+                    }
+                    sendSystemNotification('PayMEMO - Напоминание', msg);
+                });
             }
         }
 
